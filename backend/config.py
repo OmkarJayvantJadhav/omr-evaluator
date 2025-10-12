@@ -1,0 +1,41 @@
+"""
+Configuration settings for the OMR Evaluator system.
+"""
+import os
+from typing import Optional
+
+class Settings:
+    """Application settings"""
+    
+    # Database settings
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./omr_evaluator.db")
+    
+    # JWT settings
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # File upload settings
+    UPLOAD_DIR: str = "uploads"
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
+    ALLOWED_FILE_EXTENSIONS: list = ['.jpg', '.jpeg', '.png', '.pdf']
+    
+    # OMR Processing settings
+    ALLOW_RESUBMISSION: bool = os.getenv("ALLOW_RESUBMISSION", "true").lower() == "true"
+    REQUIRE_TEACHER_APPROVAL_FOR_RESUBMISSION: bool = os.getenv("REQUIRE_TEACHER_APPROVAL", "false").lower() == "true"
+    
+    # API settings
+    CORS_ORIGINS: list = [
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://your-app.vercel.app",  # Replace with your actual Vercel URL
+        "https://omr-evaluator.vercel.app"  # Replace with your actual Vercel URL
+    ] if not os.getenv("CORS_ORIGINS") else os.getenv("CORS_ORIGINS").split(",")
+    
+    @classmethod
+    def get_upload_path(cls) -> str:
+        """Get the absolute path for uploads directory"""
+        return os.path.abspath(cls.UPLOAD_DIR)
+
+# Create global settings instance
+settings = Settings()
