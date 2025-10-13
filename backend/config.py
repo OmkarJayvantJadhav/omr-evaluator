@@ -28,8 +28,9 @@ class Settings:
     CORS_ORIGINS: list = [
         "http://localhost:3000", 
         "http://127.0.0.1:3000",
-        "https://your-app.vercel.app",  # Replace with your actual Vercel URL
-        "https://omr-evaluator.vercel.app"  # Replace with your actual Vercel URL
+        "https://scanalyze.com",  # Your actual Vercel domain
+        "https://scanalyze-gavq0hz3g-omkar-jayvant-jadhavs-projects.vercel.app",  # Vercel deployment URL
+        "https://*.vercel.app"  # Allow all Vercel deployment URLs
     ] if not os.getenv("CORS_ORIGINS") else os.getenv("CORS_ORIGINS").split(",")
     
     @classmethod
