@@ -69,3 +69,4 @@ uploads/
 # Ignore virtual environments
 venv/
 backend/venv/
+.vercel

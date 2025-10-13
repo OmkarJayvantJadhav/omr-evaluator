@@ -12,6 +12,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://omr-evaluator-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "env": {
