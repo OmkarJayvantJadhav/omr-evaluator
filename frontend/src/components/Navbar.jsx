@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   UserCircleIcon, 
   ChevronDownIcon,
-  BookOpenIcon,
+  QrCodeIcon,
   PlusIcon,
   ArrowUpTrayIcon,
   ChartBarIcon,
@@ -50,7 +50,7 @@ const Navbar = () => {
               className="flex items-center space-x-3 group"
             >
               <div className="p-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 group-hover:scale-105 transition-transform duration-200 animate-glow">
-                <BookOpenIcon className="h-6 w-6 text-white" />
+                <QrCodeIcon className="h-6 w-6 text-white" />
               </div>
               <div>
                 <span className="text-xl font-bold gradient-text font-brand">SCANALYZE</span>

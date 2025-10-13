@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { BookOpenIcon, EyeIcon, EyeSlashIcon, UserIcon, KeyIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { QrCodeIcon, EyeIcon, EyeSlashIcon, UserIcon, KeyIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent } from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
@@ -88,7 +88,7 @@ const Login = () => {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow mb-6">
-            <BookOpenIcon className="h-8 w-8 text-white animate-float" />
+            <QrCodeIcon className="h-8 w-8 text-white animate-float" />
           </div>
           <h1 className="heading-lg font-brand gradient-text mb-1">SCANALYZE</h1>
           <p className="text-neutral-600 mb-2">Smart OMR Evaluator</p>
