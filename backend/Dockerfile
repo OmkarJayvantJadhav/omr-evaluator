@@ -4,44 +4,49 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for OpenCV, Tesseract, and PDF processing
-RUN apt-get update && apt-get install -y \
+# Install system dependencies for OpenCV, Tesseract, PDF processing, and health checks
+# Use --no-install-recommends for a smaller image
+RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     tesseract-ocr-eng \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
-    libglib2.0-0 \
     poppler-utils \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
+# This assumes your build context is the root of your repo
 COPY backend/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy only the backend application code, not the whole repository
+COPY backend/. .
 
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
-# Create non-root user for security
+# Create non-root user for security and transfer ownership
 RUN adduser --disabled-password --gecos '' appuser && \
     chown -R appuser:appuser /app
+
+# Switch to the non-root user
 USER appuser
 
-# Expose port
+# Expose port (good practice for documentation)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+# Health check using curl (more lightweight than a Python script)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Start the application (Railway sets PORT env var)
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Start the application (Railway sets the PORT env var)
+# Using exec allows the app to properly receive signals like SIGTERM for graceful shutdowns
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
