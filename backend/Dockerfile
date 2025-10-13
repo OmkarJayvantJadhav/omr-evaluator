@@ -42,6 +42,7 @@ USER appuser
 # Expose port (good practice for documentation)
 EXPOSE 8000
 
+<<<<<<< HEAD
 # Health check using curl
 # Increased start-period to give the app more time to boot
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
@@ -50,3 +51,14 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 # Start the application using the correct exec form with a hardcoded port
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+=======
+# Health check using curl with dynamic port
+# Increased start-period to give the app more time to boot
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Start the application (Railway sets PORT env var)
+# Use shell form to allow environment variable expansion
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+
+>>>>>>> 8603aea (Fix Railway PORT environment variable issue)
