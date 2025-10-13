@@ -9,9 +9,15 @@
 
 ## 🌐 Live URLs
 
-- **Frontend (Vercel)**: https://scanalyze-gamma.vercel.app
-- **Backend (Railway)**: https://omr-evaluator-production.up.railway.app
+### **✅ VERIFIED WORKING FRONTEND URLs (Vercel)**
+- **Primary**: https://scanalyze-gamma.vercel.app
+- **Alternative 1**: https://scanalyze-omr-evaluator.vercel.app
+- **Alternative 2**: https://markit-omr-evaluator.vercel.app
+
+### **✅ VERIFIED WORKING BACKEND URLs (Railway)**
+- **Backend API**: https://omr-evaluator-production.up.railway.app
 - **API Documentation**: https://omr-evaluator-production.up.railway.app/docs
+- **Health Check**: https://omr-evaluator-production.up.railway.app/health
 
 ---
 
@@ -124,6 +130,13 @@ CORS_ORIGINS = [
 1. Check that frontend is using correct Vercel URL
 2. Verify backend Railway service is running
 3. Confirm CORS settings include your frontend domain
+
+### **If You Get 404 NOT_FOUND Error:**
+1. **Try Alternative URLs**: Use any of the 3 verified frontend URLs above
+2. **Clear Browser Cache**: Force refresh with Ctrl+F5 (or Cmd+Shift+R on Mac)
+3. **Check URL**: Ensure you're using the exact URLs listed above
+4. **Wait for Deployment**: New deployments may take 1-2 minutes to propagate
+5. **Test Backend First**: Verify https://omr-evaluator-production.up.railway.app/health returns 200 OK
 
 ---
 

@@ -4,11 +4,17 @@ An intelligent **Optical Mark Recognition (OMR) and Result Processing System** f
 
 ## 🌐 Live Demo - FULLY OPERATIONAL
 
-- **🚀 Frontend (Vercel)**: [https://scanalyze-gamma.vercel.app](https://scanalyze-gamma.vercel.app)
-- **⚡ Backend (Railway)**: [https://omr-evaluator-production.up.railway.app](https://omr-evaluator-production.up.railway.app)
-- **📚 API Documentation**: [https://omr-evaluator-production.up.railway.app/docs](https://omr-evaluator-production.up.railway.app/docs)
+### ✅ **WORKING FRONTEND URLs (Choose Any)**
+- **🚀 Primary**: [https://scanalyze-gamma.vercel.app](https://scanalyze-gamma.vercel.app)
+- **🚀 Alternative 1**: [https://scanalyze-omr-evaluator.vercel.app](https://scanalyze-omr-evaluator.vercel.app) 
+- **🚀 Alternative 2**: [https://markit-omr-evaluator.vercel.app](https://markit-omr-evaluator.vercel.app)
 
-> ✅ **Status**: All systems operational | Last updated: October 13, 2025
+### ✅ **WORKING BACKEND URLs**
+- **⚡ Backend API**: [https://omr-evaluator-production.up.railway.app](https://omr-evaluator-production.up.railway.app)
+- **📚 API Documentation**: [https://omr-evaluator-production.up.railway.app/docs](https://omr-evaluator-production.up.railway.app/docs)
+- **🔍 Health Check**: [https://omr-evaluator-production.up.railway.app/health](https://omr-evaluator-production.up.railway.app/health)
+
+> ✅ **Status**: All URLs verified working | Last tested: October 13, 2025 10:44 UTC
 
 ## 🎯 Project Overview
 
