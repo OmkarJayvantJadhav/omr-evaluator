@@ -138,6 +138,13 @@ CORS_ORIGINS = [
 4. **Wait for Deployment**: New deployments may take 1-2 minutes to propagate
 5. **Test Backend First**: Verify https://omr-evaluator-production.up.railway.app/health returns 200 OK
 
+### **If Registration Shows "Connection Refused" or "localhost:8000" Error:**
+1. **Environment Variable Issue**: Frontend is not connecting to Railway backend
+2. **Fixed**: VITE_API_URL has been added to Vercel environment variables
+3. **Value**: https://omr-evaluator-production.up.railway.app
+4. **Status**: Applied to Production, Preview, and Development environments
+5. **Next Steps**: Wait for auto-deployment or try the alternative URLs above
+
 ---
 
 ## 🚀 Deployment Commands
