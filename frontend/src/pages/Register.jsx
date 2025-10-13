@@ -111,11 +111,10 @@ const Register = () => {
         </div>
         
         {/* Registration Form */}
-        <Card variant="glass" className="p-8 animate-scale-in card-hover transition-all">
+        <Card variant="glass" className="p-8">
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
                 <Input
                   name="username"
                   label="Username"
@@ -125,9 +124,7 @@ const Register = () => {
                   leftIcon={<UserIcon className="h-5 w-5 text-neutral-400" />}
                   required
                 />
-                </div>
                 
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                 <Input
                   name="email"
                   type="email"
@@ -138,9 +135,7 @@ const Register = () => {
                   leftIcon={<EnvelopeIcon className="h-5 w-5 text-neutral-400" />}
                   required
                 />
-                </div>
 
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
                 <Input
                   name="full_name"
                   label="Full Name"
@@ -150,10 +145,9 @@ const Register = () => {
                   leftIcon={<UserGroupIcon className="h-5 w-5 text-neutral-400" />}
                   required
                 />
-                </div>
 
                 {/* Role Selection */}
-                <div className="form-group animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <div className="form-group">
                   <label className="label">Choose Your Role *</label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
@@ -200,7 +194,6 @@ const Register = () => {
 
                 {/* Roll Number for Students */}
                 {formData.role === 'student' && (
-                  <div className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
                   <Input
                     name="roll_number"
                     label="Roll Number"
@@ -211,10 +204,8 @@ const Register = () => {
                     required
                     help="Your unique student roll number - required for OMR submissions"
                   />
-                  </div>
                 )}
 
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Input
                   name="password"
                   type={showPassword ? 'text' : 'password'}
@@ -238,9 +229,7 @@ const Register = () => {
                   }
                   required
                 />
-                </div>
 
-                <div className="animate-fade-in-up" style={{ animationDelay: '0.35s' }}>
                 <Input
                   name="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -264,23 +253,20 @@ const Register = () => {
                   }
                   required
                 />
-                </div>
               </div>
 
-              <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full active:scale-[0.98] transition-transform"
+                className="w-full"
               >
                 
                 Create Account
               </Button>
-              </div>
 
-              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
+              <div className="text-center">
                 <span className="text-neutral-500 text-sm">Already have an account? </span>
                 <Link
                   to="/login"

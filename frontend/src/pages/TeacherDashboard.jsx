@@ -17,7 +17,7 @@ import {
 import { teacherAPI, examAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../components/ui/Card';
-import Reveal from '../components/Reveal';
+// import Reveal from '../components/Reveal';
 import Button from '../components/ui/Button';
 
 const TeacherDashboard = () => {
@@ -101,7 +101,7 @@ const TeacherDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <Reveal className="flex justify-between items-start">
+      <div className="flex justify-between items-start animate-fade-in-up">
         <div>
           <div className="flex items-center space-x-3 mb-2">
             <div className="p-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow">
@@ -123,41 +123,36 @@ const TeacherDashboard = () => {
             Create New Exam
           </Button>
         </Link>
-      </Reveal>
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;
           return (
-            <Reveal key={stat.name} style={{ animationDelay: `${index * 0.05}s` }}>
-              <Card 
-                key={stat.name} 
-                hoverable 
-                className="animate-fade-in-up group"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="stat-label">{stat.name}</p>
-                      <p className="stat-value">{stat.value}</p>
-                    </div>
-                    <div className={`p-4 rounded-xl bg-gradient-to-r ${stat.bgGradient} border ${stat.borderColor} group-hover:scale-110 transition-transform duration-200`}>
+            <Card 
+              key={stat.name} 
+              hoverable 
+              className="animate-fade-in-up group"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="stat-label">{stat.name}</p>
+                    <p className="stat-value">{stat.value}</p>
                       <IconComponent className={`h-8 w-8 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`} />
                     </div>
                   </div>
                
               </CardContent>
             </Card>
-            </Reveal>
           );
         })}
       </div>
 
       {/* Exams List */}
-      <Reveal style={{ animationDelay: '0.2s' }}>
-        <Card>
+      <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -276,12 +271,10 @@ const TeacherDashboard = () => {
             )}
           </CardContent>
         </Card>
-      </Reveal>
 
       {/* Recent Results */}
       {dashboardData?.recent_results && dashboardData.recent_results.length > 0 && (
-        <Reveal style={{ animationDelay: '0.4s' }}>
-          <Card>
+          <Card className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 
@@ -293,11 +286,11 @@ const TeacherDashboard = () => {
             <CardContent>
               <div className="space-y-4">
                 {dashboardData.recent_results.slice(0, 5).map((result, index) => (
-                  <Reveal key={result.id} style={{ animationDelay: `${0.5 + index * 0.05}s` }}>
                     <Card 
                       key={result.id} 
                       variant="plain" 
-                      className="p-4"
+                      className="p-4 animate-slide-in-right"
+                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
@@ -330,12 +323,10 @@ const TeacherDashboard = () => {
                         </div>
                       </div>
                     </Card>
-                  </Reveal>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </Reveal>
       )}
     </div>
   );

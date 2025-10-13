@@ -53,9 +53,7 @@ const Navbar = () => {
                 <BookOpenIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold gradient-text font-brand inline-block transition-all duration-200 group-hover:rotate-1 group-hover:scale-105 group-hover:shadow-glow">
-                  SCANALYZE
-                </span>
+                <span className="text-xl font-bold gradient-text font-brand">SCANALYZE</span>
                 
               </div>
             </Link>
