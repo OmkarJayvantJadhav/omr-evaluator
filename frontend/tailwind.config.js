@@ -95,8 +95,12 @@ export default {
         },
       },
       fontFamily: {
+        // Body text
         sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['"Press Start 2P"', 'Bebas Neue', 'Oswald', 'system-ui', 'sans-serif'],
+        // Brand mark only
+        brand: ['"Press Start 2P"', 'system-ui', 'sans-serif'],
+        // All other headings
+        heading: ['"Lexend Deca"', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

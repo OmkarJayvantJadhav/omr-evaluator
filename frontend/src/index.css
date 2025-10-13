@@ -162,7 +162,7 @@
   
   /* Premium Typography */
   .heading {
-    @apply font-display font-bold tracking-tight;
+    @apply font-heading font-bold tracking-tight;
   }
   
   .heading-xl {
