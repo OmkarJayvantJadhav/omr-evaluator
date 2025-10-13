@@ -30,6 +30,8 @@ class Settings:
         "http://127.0.0.1:3000",
         # Current production frontend deployment
         "https://scanalyze-omr-evaluator-app.vercel.app",
+        # Active deployment used currently
+        "https://scanalyze-smart-omr-evaluator.vercel.app",
         # Planned custom domains (add both apex and www)
         "https://scanalyze-omr-evaluator.com",
         "https://www.scanalyze-omr-evaluator.com",
