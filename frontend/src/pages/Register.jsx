@@ -183,7 +183,7 @@ const Register = () => {
                         <div className={`w-10 h-10 mx-auto mb-2 rounded-lg flex items-center justify-center ${
                           formData.role === 'teacher' ? 'bg-primary-500' : 'bg-neutral-400'
                         }`}>
-                          <BookOpenIcon className="h-5 w-5 text-white" />
+                          <QrCodeIcon className="h-5 w-5 text-white" />
                         </div>
                         <h4 className="font-semibold text-sm">Teacher</h4>
                         <p className="text-xs text-neutral-500 mt-1">Create & manage exams</p>

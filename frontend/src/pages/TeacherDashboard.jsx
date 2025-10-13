@@ -190,7 +190,6 @@ const TeacherDashboard = () => {
             ) : (
               <div className="grid gap-4">
                 {exams.map((exam, index) => (
-                  <Reveal key={exam.id} style={{ animationDelay: `${0.3 + index * 0.05}s` }}>
                     <Card 
                       key={exam.id} 
                       variant="plain" 
@@ -265,7 +264,6 @@ const TeacherDashboard = () => {
                         </div>
                       </div>
                     </Card>
-                  </Reveal>
                 ))}
               </div>
             )}
