@@ -26,11 +26,17 @@ class Settings:
     
     # API settings
     CORS_ORIGINS: list = [
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://scanalyze-gamma.vercel.app",  # Actual working Vercel URL
-        "https://scanalyze-omr-evaluator.vercel.app",  # Alternative project URL
-        "https://markit-omr-evaluator.vercel.app"  # Alternative project URL
+        # Current production frontend deployment
+        "https://scanalyze-omr-evaluator-app.vercel.app",
+        # Planned custom domains (add both apex and www)
+        "https://scanalyze-omr-evaluator.com",
+        "https://www.scanalyze-omr-evaluator.com",
+        # Other historical Vercel preview/alt domains (keep for safety)
+        "https://scanalyze-gamma.vercel.app",
+        "https://scanalyze-omr-evaluator.vercel.app",
+        "https://markit-omr-evaluator.vercel.app",
     ] if not os.getenv("CORS_ORIGINS") else os.getenv("CORS_ORIGINS").split(",")
     
     @classmethod
