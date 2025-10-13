@@ -96,7 +96,7 @@ export default {
       },
       fontFamily: {
         sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['Bebas Neue', 'Oswald', 'system-ui', 'sans-serif'],
+        display: ['"Press Start 2P"', 'Bebas Neue', 'Oswald', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

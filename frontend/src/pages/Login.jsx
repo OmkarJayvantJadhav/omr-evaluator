@@ -90,9 +90,9 @@ const Login = () => {
           <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow mb-6">
             <BookOpenIcon className="h-8 w-8 text-white animate-float" />
           </div>
-          <h1 className="heading-lg gradient-text mb-2">
-            Welcome Back
-          </h1>
+          <h1 className="heading-lg font-display gradient-text mb-1">SCANALYZE</h1>
+          <p className="text-neutral-600 mb-2">Smart OMR Evaluator</p>
+          <h2 className="heading-md gradient-text mb-2">Welcome Back</h2>
           <p className="text-neutral-600">
             Sign in to continue your journey
           </p>

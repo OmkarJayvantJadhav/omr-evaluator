@@ -53,7 +53,7 @@ const Navbar = () => {
                 <BookOpenIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold gradient-text">OMR Evaluator</span>
+                <span className="text-xl font-bold gradient-text font-display">SCANALYZE</span>
                 
               </div>
             </Link>
