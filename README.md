@@ -2,6 +2,14 @@
 
 An intelligent **Optical Mark Recognition (OMR) and Result Processing System** for automated exam evaluation with modern web technologies.
 
+## 🌐 Live Demo - FULLY OPERATIONAL
+
+- **🚀 Frontend (Vercel)**: [https://scanalyze-gamma.vercel.app](https://scanalyze-gamma.vercel.app)
+- **⚡ Backend (Railway)**: [https://omr-evaluator-production.up.railway.app](https://omr-evaluator-production.up.railway.app)
+- **📚 API Documentation**: [https://omr-evaluator-production.up.railway.app/docs](https://omr-evaluator-production.up.railway.app/docs)
+
+> ✅ **Status**: All systems operational | Last updated: October 13, 2025
+
 ## 🎯 Project Overview
 
 The OMR Sheet Evaluator App is a comprehensive solution that automates the entire process of OMR-based exam evaluation. It enables teachers to create exams with customizable answer keys and allows students to submit OMR sheets for instant automated evaluation with detailed performance analytics.
@@ -265,6 +273,8 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 #### 1. 🔐 Register & Login
 - Create account with **valid email** and **unique roll number**
+- **IMPORTANT**: For students, roll number is **required**
+- **IMPORTANT**: For teachers, do **NOT** include roll number
 - Roll numbers are required for OMR submissions
 
 #### 2. 🎯 Find Exam
