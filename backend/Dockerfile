@@ -17,10 +17,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     poppler-utils \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm-rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
-# This assumes your build context is the root of your repo
 COPY backend/requirements.txt .
 
 # Install Python dependencies
@@ -43,12 +42,11 @@ USER appuser
 # Expose port (good practice for documentation)
 EXPOSE 8000
 
-# Health check using curl (more lightweight than a Python script)
+# Health check using curl
 # Increased start-period to give the app more time to boot
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Start the application (Railway sets the PORT env var)
-# Using exec allows the app to properly receive signals like SIGTERM for graceful shutdowns
+# Start the application using the correct exec form with a hardcoded port
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
