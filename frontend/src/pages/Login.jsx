@@ -105,9 +105,10 @@ const Login = () => {
         </div>
 
         {/* Login Form */}
-        <Card variant="glass" className="p-8 animate-scale-in">
+        <Card variant="glass" className="p-8 animate-scale-in card-hover transition-all">
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
               <Input
                 name="username"
                 label="Username"
@@ -117,7 +118,9 @@ const Login = () => {
                 leftIcon={<UserIcon className="h-5 w-5 text-neutral-400" />}
                 required
               />
+              </div>
 
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               <Input
                 name="password"
                 type={showPassword ? 'text' : 'password'}
@@ -141,19 +144,22 @@ const Login = () => {
                 }
                 required
               />
+              </div>
 
+              <div className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={loading}
-                className="w-full"
+                className="w-full active:scale-[0.98] transition-transform"
               >
                 
                 Sign In
               </Button>
+              </div>
 
-              <div className="text-center">
+              <div className="text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                 <span className="text-neutral-500 text-sm">Don't have an account? </span>
                 <Link
                   to="/register"

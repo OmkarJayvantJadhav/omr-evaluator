@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { cn } from '../../utils/cn';
 
 const Button = React.forwardRef(({
@@ -24,6 +24,23 @@ const Button = React.forwardRef(({
     lg: 'btn-lg',
   };
 
+  const btnRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (variant !== 'primary') return;
+    const el = btnRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    el.style.transform = `translate(${x * 0.03}px, ${y * 0.03}px)`;
+  };
+
+  const handleMouseLeave = () => {
+    const el = btnRef.current;
+    if (el) el.style.transform = '';
+  };
+
   return (
     <button
       className={cn(
@@ -32,8 +49,14 @@ const Button = React.forwardRef(({
         loading && 'cursor-not-allowed opacity-50',
         className
       )}
-      ref={ref}
+      ref={(node) => {
+        btnRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      }}
       disabled={loading || props.disabled}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       {...props}
     >
       {loading ? (
