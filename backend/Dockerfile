@@ -44,9 +44,11 @@ USER appuser
 EXPOSE 8000
 
 # Health check using curl (more lightweight than a Python script)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Increased start-period to give the app more time to boot
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Start the application (Railway sets the PORT env var)
 # Using exec allows the app to properly receive signals like SIGTERM for graceful shutdowns
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
