@@ -1,5 +1,4 @@
 {
-  "_comment": "Updated with VITE_API_URL environment variable",
   "builds": [
     {
       "src": "package.json",
