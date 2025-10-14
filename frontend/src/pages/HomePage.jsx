@@ -302,7 +302,7 @@ export default function HomePage() {
         ref={heroRef}
         className="mx-auto max-w-7xl px-4 pt-16 sm:pt-20 pb-16 sm:pb-24 lg:pb-28 sm:px-6 lg:px-8 transition-all duration-700"
       >
-        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div>
           <div>
            
             <h1 className="heading-lg font-brand gradient-text mb-2">
