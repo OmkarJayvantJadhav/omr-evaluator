@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
+import { QrCodeIcon } from '@heroicons/react/24/outline';
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -172,11 +173,11 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <div className="relative">
               <span className="absolute -right-3 -top-2 rounded-full bg-cyan-400 px-1.5 py-0.5 text-[10px] font-semibold text-slate-900 shadow-sm dark:text-slate-900 animate-pulse" aria-label="Beta badge">Beta</span>
-              <a href="/" className="flex items-center gap-2" aria-label="SCANALYZE home">
-                <svg width="28" height="28" viewBox="0 0 24 24" className="text-blue-600" aria-hidden="true">
-                  <path fill="currentColor" d="M3 12a9 9 0 1118 0 9 9 0 01-18 0zm10.5-4.5a1.5 1.5 0 100 3h2a1.5 1.5 0 000-3h-2zM6.75 12a1.5 1.5 0 103 0v-2a1.5 1.5 0 10-3 0v2zm4.5 6a1.5 1.5 0 100-3h-2a1.5 1.5 0 000 3h2z" />
-                </svg>
-                <span className="text-xl font-extrabold tracking-tight">SCANALYZE</span>
+              <a href="/" className="flex items-center gap-3" aria-label="SCANALYZE home">
+                <div className="mx-0 h-9 w-9 flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow">
+                  <QrCodeIcon className="h-5 w-5 text-white" aria-hidden="true" />
+                </div>
+                <span className="font-brand gradient-text text-xl tracking-tight">SCANALYZE</span>
               </a>
             </div>
           </div>
@@ -254,9 +255,15 @@ export default function HomePage() {
       >
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-              Scan. Analyze. Grade — Faster.
+            <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow mb-6">
+              <QrCodeIcon className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="heading-lg font-brand gradient-text mb-2">
+              SCANALYZE
             </h1>
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+              Scan. Analyze. Grade — Faster.
+            </h2>
             <p className="mt-4 max-w-xl text-lg text-slate-600 dark:text-slate-300">
               SCANALYZE evaluates OMR sheets with AI-grade accuracy, delivers instant analytics, and exports results effortlessly.
             </p>
