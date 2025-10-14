@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import anime from 'animejs';
 import { QrCodeIcon } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -70,6 +71,7 @@ export default function HomePage() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d', { alpha: true });
     let particles = [];
+    let animation = null;
     const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
     function resize() {
@@ -106,7 +108,7 @@ export default function HomePage() {
 
     function animateParticles() {
       if (isReducedMotion) return;
-      anime({
+      animation = anime({
         targets: particles,
         x: () => `+=${(Math.random() - 0.5) * 30}`,
         y: () => `+=${(Math.random() - 0.5) * 30}`,
@@ -141,6 +143,12 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('resize', resize);
       window.removeEventListener('scroll', onScrollParallax);
+      if (animation && typeof animation.pause === 'function') {
+        animation.pause();
+      }
+      if (animation && typeof animation.destroy === 'function') {
+        animation.destroy();
+      }
     };
   }, [isReducedMotion]);
 
@@ -179,12 +187,9 @@ export default function HomePage() {
   };
 
   const NavLink = ({ href, children }) => (
-    <a
-      href={href}
-      className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-600 rounded transition-colors dark:text-slate-300 dark:hover:text-white"
-    >
+    <Link to={href} className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-600 rounded transition-colors dark:text-slate-300 dark:hover:text-white">
       {children}
-    </a>
+    </Link>
   );
 
   return (
@@ -227,12 +232,12 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <div className="relative">
              
-              <a href="/" className="flex items-center gap-3" aria-label="SCANALYZE home">
+              <Link to="/" className="flex items-center gap-3" aria-label="SCANALYZE home">
                 <div className="mx-0 h-9 w-9 flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow">
                   <QrCodeIcon className="h-5 w-5 text-white" aria-hidden="true" />
                 </div>
                 <span className="font-brand gradient-text text-xl tracking-tight">SCANALYZE</span>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -250,8 +255,8 @@ export default function HomePage() {
               {darkMode ? 'Light' : 'Dark'}
             </button>
             <div className="flex items-center gap-2">
-              <a href="/login" className="btn btn-secondary btn-sm">Login</a>
-              <a href="/register" className="btn btn-primary btn-sm">Sign Up</a>
+              <Link to="/login" className="btn btn-secondary btn-sm">Login</Link>
+              <Link to="/register" className="btn btn-primary btn-sm">Sign Up</Link>
             </div>
           </div>
 
@@ -277,8 +282,8 @@ export default function HomePage() {
               <a href="#how-it-works" className="block rounded px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">How it works</a>
               <a href="#demo" className="block rounded px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">Demo</a>
               <div className="flex items-center gap-2 pt-2">
-                <a href="/login" className="flex-1 btn btn-secondary">Login</a>
-                <a href="/register" className="flex-1 btn btn-primary">Sign Up</a>
+                <Link to="/login" className="flex-1 btn btn-secondary">Login</Link>
+                <Link to="/register" className="flex-1 btn btn-primary">Sign Up</Link>
               </div>
               <button
                 type="button"
@@ -310,15 +315,15 @@ export default function HomePage() {
               SCANALYZE evaluates OMR sheets with AI-grade accuracy, delivers instant analytics, and exports results effortlessly.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="group inline-flex items-center gap-2 rounded-md bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
                 Get Started
                 <svg className="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path d="M12.293 3.293a1 1 0 011.414 0L19 8.586l-5.293 5.293a1 1 0 01-1.414-1.414L15.586 10H3a1 1 0 110-2h12.586l-3.293-3.293a1 1 0 010-1.414z" />
                 </svg>
-              </a>
+              </Link>
               <button
                 type="button"
                 onClick={scrollToSteps}
@@ -336,38 +341,60 @@ export default function HomePage() {
           </div>
 
           {/* Replaced mockup with premium highlights */}
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="card p-6 card-hover">
-              <h3 className="text-lg font-semibold">Precision OMR</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Accurate bubble detection with noise and skew handling.</p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
-                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Confidence scoring
-              </div>
-            </div>
-            <div className="card p-6 card-hover">
-              <h3 className="text-lg font-semibold">Instant Insights</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Question-wise analytics, pass rates, and exports.</p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
-                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> CSV/PDF reports
-              </div>
-            </div>
-            <div className="card p-6 card-hover">
-              <h3 className="text-lg font-semibold">Secure by Design</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Role-based access with hardened CORS and auditability.</p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
-                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Teacher/Student flows
-              </div>
-            </div>
-            <div className="card p-6 card-hover">
-              <h3 className="text-lg font-semibold">Cloud Ready</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Vercel + Railway deployment with MySQL/SQLite support.</p>
-              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
-                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Auto scale & logs
-              </div>
-            </div>
-          </div>
+          <section className="py-16 bg-slate-50 dark:bg-slate-900">
+  <div className="max-w-6xl mx-auto px-6">
+    <h2 className="text-3xl font-bold text-center mb-12 text-slate-800 dark:text-slate-100">
+      Why Choose SCANALYZE
+    </h2>
+
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Card 1 */}
+      <div className="card p-6 rounded-2xl shadow-md hover:shadow-xl transition card-hover bg-white dark:bg-slate-800">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Precision OMR</h3>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Accurate bubble detection with noise and skew handling.
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+          <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Confidence scoring
         </div>
-      </section>
+      </div>
+
+      {/* Card 2 */}
+      <div className="card p-6 rounded-2xl shadow-md hover:shadow-xl transition card-hover bg-white dark:bg-slate-800">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Instant Insights</h3>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Question-wise analytics, pass rates, and exports.
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+          <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> CSV/PDF reports
+        </div>
+      </div>
+
+      {/* Card 3 */}
+      <div className="card p-6 rounded-2xl shadow-md hover:shadow-xl transition card-hover bg-white dark:bg-slate-800">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Secure by Design</h3>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Role-based access with hardened CORS and auditability.
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+          <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Teacher/Student flows
+        </div>
+      </div>
+
+      {/* Card 4 */}
+      <div className="card p-6 rounded-2xl shadow-md hover:shadow-xl transition card-hover bg-white dark:bg-slate-800">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Cloud Ready</h3>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Vercel + Railway deployment with MySQL/SQLite support.
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+          <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Auto scale & logs
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* Interactive 3D section (premium animated background element) */}
       {/*
@@ -489,9 +516,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold">See it in action</h2>
-            <p className="mt-3 max-w-2xl text-slate-600 dark:text-slate-300">
-              Replace the placeholders below with your product screenshots or a short GIF.
-            </p>
+            
           </div>
           <div className="hidden gap-2 sm:flex">
             <button
@@ -539,9 +564,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-          Tip: For video, use a muted, looped MP4/WebM with the same container and add playsInline.
-        </p>
       </section>
 
       <footer className="border-t border-slate-200/60 py-10 dark:border-slate-800/60">
