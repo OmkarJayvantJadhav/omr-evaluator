@@ -13,6 +13,7 @@ export default function HomePage() {
   const carouselRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [FluidGlassComp, setFluidGlassComp] = useState(null);
+  const [LiquidEtherComp, setLiquidEtherComp] = useState(null);
 
   const carouselImages = [
     'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&auto=format&fit=crop',
@@ -38,6 +39,13 @@ export default function HomePage() {
       })
       .catch(() => {
         // Silently skip if component not present; homepage continues to work
+      });
+    import('../components/LiquidEther')
+      .then((m) => {
+        if (isMounted) setLiquidEtherComp(() => m.default);
+      })
+      .catch(() => {
+        // optional background; ignore if missing
       });
     return () => {
       isMounted = false;
@@ -350,6 +358,35 @@ export default function HomePage() {
                   }}
                   barProps={{}}
                   cubeProps={{}}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Liquid Ether premium background section (three.js) */}
+      {LiquidEtherComp && (
+        <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-3 shadow-premium backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/40">
+            <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-white/40 shadow-inner dark:border-slate-800 dark:bg-slate-900/30">
+              <div className="relative h-[360px] sm:h-[480px] lg:h-[560px]">
+                <LiquidEtherComp
+                  colors={[ '#5227FF', '#FF9FFC', '#B19EEF' ]}
+                  mouseForce={20}
+                  cursorSize={100}
+                  isViscous={false}
+                  viscous={30}
+                  iterationsViscous={32}
+                  iterationsPoisson={32}
+                  resolution={0.5}
+                  isBounce={false}
+                  autoDemo={true}
+                  autoSpeed={0.5}
+                  autoIntensity={2.2}
+                  takeoverDuration={0.25}
+                  autoResumeDelay={3000}
+                  autoRampDuration={0.6}
                 />
               </div>
             </div>
