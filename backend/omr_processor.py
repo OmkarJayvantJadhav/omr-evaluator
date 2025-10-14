@@ -9,9 +9,9 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.6
-        self.bubble_min_area = 50
-        self.bubble_max_area = 2000  # Increased for larger sheets
+        self.confidence_threshold = 0.5  # Lowered to detect more filled bubbles
+        self.bubble_min_area = 40  # Slightly smaller minimum
+        self.bubble_max_area = 2500  # Increased for larger sheets
         self.aspect_ratio_threshold = 0.4  # More lenient for varied bubble shapes
         self.column_gap_threshold = 50  # Minimum gap to consider as column separator
         
@@ -165,26 +165,28 @@ class OMRProcessor:
             if area < self.bubble_min_area or area > self.bubble_max_area:
                 continue
             
-            # Check if contour is roughly circular
+            # Check if contour is roughly circular (more lenient)
             perimeter = cv2.arcLength(contour, True)
             if perimeter == 0:
                 continue
             
             circularity = 4 * np.pi * area / (perimeter * perimeter)
-            if circularity < 0.3:  # Not circular enough
+            if circularity < 0.2:  # More lenient for varied bubble shapes
                 continue
             
             # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
+            if h == 0:  # Avoid division by zero
+                continue
             aspect_ratio = float(w) / h
-            if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
+            if abs(aspect_ratio - 1.0) > 0.6:  # More lenient aspect ratio
                 continue
             
             # Calculate fill ratio (how much of the bubble is filled)
             mask = np.zeros(image.shape, dtype=np.uint8)
             cv2.fillPoly(mask, [contour], 255)
             filled_pixels = cv2.countNonZero(cv2.bitwise_and(image, mask))
-            total_pixels = area
+            total_pixels = int(area)
             fill_ratio = filled_pixels / total_pixels if total_pixels > 0 else 0
             
             bubbles.append({
@@ -263,6 +265,7 @@ class OMRProcessor:
         """
         Automatically detect columns in the OMR sheet.
         Works for any number of columns (1 to N).
+        Enhanced to better handle 150+ question sheets.
         """
         if not bubbles:
             return []
@@ -273,35 +276,43 @@ class OMRProcessor:
         if not x_coords:
             return []
         
-        # Sort bubbles by x-coordinate
-        sorted_bubbles = sorted(bubbles, key=lambda b: b['center'][0])
+        # Use clustering approach for better column detection
+        x_sorted = sorted(set(x_coords))  # Remove duplicates
         
-        # Find gaps in x-coordinates to identify column boundaries
-        x_sorted = sorted(x_coords)
-        gaps = []
-        
-        for i in range(1, len(x_sorted)):
-            gap = x_sorted[i] - x_sorted[i-1]
-            if gap > self.column_gap_threshold:  # Significant gap indicates column boundary
-                gaps.append((x_sorted[i-1], x_sorted[i], gap))
-        
-        # If no significant gaps, treat as single column
-        if not gaps:
+        if len(x_sorted) < 2:
             return [bubbles]
         
-        # Sort gaps by size and take the largest ones as column separators
-        gaps.sort(key=lambda g: g[2], reverse=True)
+        # Calculate gaps between consecutive x-coordinates
+        gaps = []
+        for i in range(1, len(x_sorted)):
+            gap = x_sorted[i] - x_sorted[i-1]
+            gaps.append((x_sorted[i-1], x_sorted[i], gap))
         
-        # Determine column boundaries
-        column_boundaries = []
+        # Calculate statistics for gap detection
+        gap_sizes = [g[2] for g in gaps]
+        median_gap = np.median(gap_sizes)
+        std_gap = np.std(gap_sizes)
+        
+        # A column separator is a gap significantly larger than typical gaps
+        threshold = max(self.column_gap_threshold, median_gap + 2 * std_gap)
+        
+        # Find significant gaps (column separators)
+        significant_gaps = [g for g in gaps if g[2] > threshold]
+        
+        # If no significant gaps, treat as single column
+        if not significant_gaps:
+            return [bubbles]
+        
+        # Sort significant gaps by position
+        significant_gaps.sort(key=lambda g: g[0])
+        
+        # Calculate separator positions (middle of each gap)
+        separator_positions = [g[0] + (g[1] - g[0]) / 2 for g in significant_gaps]
+        
+        # Create column boundaries
         min_x = min(x_coords)
         max_x = max(x_coords)
-        
-        # Use the largest gaps as separators
-        separator_positions = sorted([g[0] + (g[1] - g[0]) / 2 for g in gaps[:10]])  # Top 10 gaps
-        
-        # Create column ranges
-        boundaries = [min_x] + separator_positions + [max_x]
+        boundaries = [min_x - 1] + separator_positions + [max_x + 1]
         
         # Group bubbles into columns
         columns = []
@@ -311,7 +322,7 @@ class OMRProcessor:
             
             column_bubbles = [
                 b for b in bubbles 
-                if left_bound <= b['center'][0] < right_bound
+                if left_bound < b['center'][0] < right_bound
             ]
             
             if column_bubbles:
