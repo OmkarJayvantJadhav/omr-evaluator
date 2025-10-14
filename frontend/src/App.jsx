@@ -13,6 +13,7 @@ import ViewExam from './pages/ViewExam';
 import UploadOMR from './pages/UploadOMR';
 import ViewResult from './pages/ViewResult';
 import ExamStatistics from './pages/ExamStatistics';
+import HomePage from './pages/HomePage';
 
 // Components
 import LoadingSpinner from './components/LoadingSpinner';
@@ -63,6 +64,14 @@ const AppContent = () => {
       <main className={isAuthenticated ? 'pt-16' : ''}>
         <Routes>
           {/* Public Routes */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <HomePage />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/login"
             element={
@@ -143,8 +152,7 @@ const AppContent = () => {
           />
 
           {/* Default Routes */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Toaster 

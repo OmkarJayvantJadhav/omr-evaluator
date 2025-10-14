@@ -2,12 +2,18 @@
 
 An intelligent **Optical Mark Recognition (OMR) and Result Processing System** for automated exam evaluation with modern web technologies.
 
+![License](https://img.shields.io/badge/License-MIT-green)
+![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
+![Frontend](https://img.shields.io/badge/Frontend-React%2018-61DAFB)
+![Build](https://img.shields.io/badge/Build-Vite%204-646CFF)
+![Database](https://img.shields.io/badge/Database-MySQL%208.0-4479A1)
+![Container](https://img.shields.io/badge/Container-Docker-2496ED)
+
 ## 🌐 Live Demo - FULLY OPERATIONAL
 
 ### ✅ **WORKING FRONTEND URLs (Choose Any)**
-- **🚀 Primary**: [https://scanalyze-gamma.vercel.app](https://scanalyze-gamma.vercel.app)
-- **🚀 Alternative 1**: [https://scanalyze-omr-evaluator.vercel.app](https://scanalyze-omr-evaluator.vercel.app) 
-- **🚀 Alternative 2**: [https://markit-omr-evaluator.vercel.app](https://markit-omr-evaluator.vercel.app)
+- **🚀 Primary**: [https://scanalyze-smart-omr-evaluator.vercel.app](https://scanalyze-gamma.vercel.app)
+
 
 ### ✅ **WORKING BACKEND URLs**
 - **⚡ Backend API**: [https://omr-evaluator-production.up.railway.app](https://omr-evaluator-production.up.railway.app)
@@ -115,11 +121,7 @@ omr-evaluator/
 # Clone the repository
 git clone <repository-url>
 cd omr-evaluator
-
-# Option 1: MySQL Setup (Recommended)
-setup_mysql_windows.bat
-
-# Option 2: General Setup (uses SQLite by default)
+# Run setup (uses SQLite by default). For MySQL, see Deployment Guide below.
 setup.bat
 ```
 
@@ -188,7 +190,7 @@ REQUIRE_TEACHER_APPROVAL=false             # Require teacher approval for resubm
 - `ALLOW_RESUBMISSION=false`: Students get blocked after first submission (original behavior)
 - Default: `true` (resubmissions allowed)
 
-> 📝 **Note:** For detailed MySQL setup instructions and data migration, see [MYSQL_MIGRATION_GUIDE.md](MYSQL_MIGRATION_GUIDE.md)
+> 📝 **Note:** For detailed MySQL setup and migration, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). You can also use `backend/migrate_to_mysql.py` for migrating from SQLite to MySQL.
 
 ## 🚀 Running the Application
 
@@ -213,7 +215,8 @@ cd frontend
 # Start Vite development server
 npm run dev
 ```
-✅ **Frontend:** http://localhost:3001 (auto-opens in browser)
+✅ **Frontend:** http://localhost:3000 (auto-opens in browser)
+> 🧩 Dev proxy: Frontend requests to `/api/...` are proxied to `http://localhost:8000` as configured in `frontend/vite.config.js`.
 
 ### Production Mode
 ```bash
@@ -325,36 +328,42 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ## 🔌 API Endpoints
 
+All endpoints are prefixed with `/api`.
+
 ### 🔐 Authentication
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `POST` | `/auth/register` | User registration with email validation | ❌ |
-| `POST` | `/auth/login` | JWT token-based login | ❌ |
-| `GET`  | `/auth/me` | Get current user profile | ✅ |
+| `POST` | `/api/auth/register` | User registration with email validation | ❌ |
+| `POST` | `/api/auth/login` | JWT token-based login | ❌ |
+| `GET`  | `/api/auth/me` | Get current user profile | ✅ |
 
 ### 📚 Exam Management
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `POST` | `/exams/create` | Create new exam (Teacher only) | ✅ Teacher |
-| `GET`  | `/exams` | List all available exams | ✅ |
-| `GET`  | `/exams/{exam_id}` | Get specific exam details | ✅ |
-| `PUT`  | `/exams/{exam_id}` | Update exam (Teacher only) | ✅ Teacher |
-| `DELETE` | `/exams/{exam_id}` | Delete exam (Teacher only) | ✅ Teacher |
+| `POST` | `/api/exams/create` | Create new exam | ✅ Teacher |
+| `GET`  | `/api/exams` | List available exams | ✅ |
+| `GET`  | `/api/exams/{exam_id}` | Get exam details | ✅ |
+| `PUT`  | `/api/exams/{exam_id}` | Update exam | ✅ Teacher |
+| `DELETE` | `/api/exams/{exam_id}` | Delete exam (soft delete) | ✅ Teacher |
+| `GET`  | `/api/exams/{exam_id}/statistics` | Exam statistics | ✅ Teacher |
 
 ### 📄 OMR Processing
-|| Method | Endpoint | Description | Auth Required |
-||--------|----------|-------------|---------------|
-|| `POST` | `/omr/upload` | Upload and process OMR sheet (supports resubmission) | ✅ Student |
-|| `GET`  | `/omr/check-submission/{exam_id}` | Check if student has existing submission | ✅ Student |
-|| `DELETE` | `/omr/submission/{exam_id}` | Delete student's submission for exam | ✅ Student |
-|| `GET`  | `/omr/processing-status/{upload_id}` | Check processing status | ✅ |
-
-### 📊 Results & Analytics
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| `GET`  | `/results/{exam_id}/{roll_number}` | Get student result | ✅ |
-| `GET`  | `/results/exam/{exam_id}` | Get all results for exam (Teacher) | ✅ Teacher |
-| `GET`  | `/results/analytics/{exam_id}` | Get exam analytics (Teacher) | ✅ Teacher |
+| `POST` | `/api/omr/upload` | Upload and process OMR sheet | ✅ Student |
+| `GET`  | `/api/omr/check-submission/{exam_id}` | Check existing submission | ✅ Student |
+| `DELETE` | `/api/omr/submission/{exam_id}` | Delete student's submission | ✅ Student |
+
+### 📊 Results
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET`  | `/api/results/{exam_id}/{roll_number}` | Get student result | ✅ |
+
+### 📊 Dashboards
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `GET`  | `/api/teacher/dashboard` | Teacher dashboard summary | ✅ Teacher |
+| `GET`  | `/api/student/dashboard` | Student dashboard summary | ✅ Student |
 
 ### 📚 Interactive Documentation
 - **Swagger UI:** http://localhost:8000/docs
@@ -405,13 +414,41 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ### 🐳 Docker Deployment (Recommended)
 ```bash
-# Start MySQL and application
-docker-compose up --build
+# Build backend image using the provided Dockerfile
+docker build -t omr-backend -f backend/Dockerfile .
 
-# Or start only MySQL for development
-docker-compose up mysql phpmyadmin -d
-# Access phpMyAdmin at http://localhost:8080
+# Run backend container (exposes FastAPI on port 8000)
+docker run --name omr-backend -e PORT=8000 -p 8000:8000 omr-backend
 ```
+
+> 📘 For end-to-end deployment options (including MySQL configuration and cloud setup), see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+### 🧩 Docker Compose (MySQL + phpMyAdmin + Backend)
+
+The repository includes a `docker-compose.yml` to run MySQL, phpMyAdmin, and the backend together.
+
+```bash
+# Start all services in the background
+docker compose up -d --build
+
+# View logs
+docker compose logs -f
+
+# Stop services
+docker compose down
+```
+
+Services and URLs:
+- **Backend (FastAPI):** `http://localhost:8000`
+- **phpMyAdmin:** `http://localhost:8080`
+- **MySQL:** Host `db`, Port `3306`
+
+Default MySQL credentials (from `docker-compose.yml`):
+- **Database:** `omr_evaluator`
+- **User:** `omr_user` / `omr_password`
+- **Root password:** `root_password`
+
+> ℹ️ The backend is configured via `DATABASE_URL=mysql+pymysql://omr_user:omr_password@db:3306/omr_evaluator` inside the compose network.
 
 ### 🌐 Manual Deployment
 
@@ -487,6 +524,39 @@ python -c "from database import init_db; init_db()"
 # 3. Test connection: mysql -u omr_user -pomr_password -h localhost
 # 4. Recreate database if needed (see MYSQL_MIGRATION_GUIDE.md)
 ```
+
+## ⚙️ Environment Variables
+
+### Backend (`backend/.env`)
+```env
+# Database
+DATABASE_URL=mysql+pymysql://omr_user:omr_password@localhost:3306/omr_evaluator
+# Alternative for local testing
+# DATABASE_URL=sqlite:///./omr_evaluator.db
+
+# Auth
+SECRET_KEY=your-super-secret-key-change-in-production
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=30
+
+# OMR
+ALLOW_RESUBMISSION=true
+REQUIRE_TEACHER_APPROVAL=false
+
+# CORS (comma-separated)
+# Example after deploying frontend to Vercel
+CORS_ORIGINS=https://your-app.vercel.app
+```
+
+### Frontend (`frontend/.env`)
+```env
+# Point to your backend base URL (without trailing /api)
+VITE_API_URL=http://localhost:8000
+```
+
+Notes:
+- Frontend automatically talks to `${VITE_API_URL}/api`.
+- In development, Vite also proxies `/api` to `http://localhost:8000` per `frontend/vite.config.js`.
 
 ### 📧 Support
 - **Issues:** Report bugs via GitHub Issues
