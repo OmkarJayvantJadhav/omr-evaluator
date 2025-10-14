@@ -78,11 +78,27 @@ export default function HomePage() {
     stepsRef.current?.scrollIntoView({ behavior: isReducedMotion ? 'auto' : 'smooth', block: 'start' });
   };
 
-  const NavLink = ({ href, children }) => (
-    <Link to={href} className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-600 rounded transition-colors dark:text-slate-300 dark:hover:text-white">
-      {children}
-    </Link>
-  );
+  const NavLink = ({ href, children }) => {
+    const isHash = href?.startsWith('#');
+    const onClick = (e) => {
+      if (!isHash) return;
+      e.preventDefault();
+      const el = document.querySelector(href);
+      if (el) {
+        el.scrollIntoView({ behavior: isReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      }
+    };
+    const cls = "px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-600 rounded transition-colors dark:text-slate-300 dark:hover:text-white";
+    return isHash ? (
+      <a href={href} onClick={onClick} className={cls}>
+        {children}
+      </a>
+    ) : (
+      <Link to={href} className={cls}>
+        {children}
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 dark:from-slate-900 dark:to-slate-950 dark:text-slate-100 selection:bg-blue-200/60 dark:selection:bg-blue-800/60">
