@@ -288,12 +288,24 @@ export default function HomePage() {
 
           <div className="relative">
             <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-gradient-to-tr from-blue-600/10 to-cyan-400/10 blur-2xl" aria-hidden="true" />
-            <img
-              src="https://images.unsplash.com/photo-1523246196481-cd2c5bc5d8f4?q=80&w=1600&auto=format&fit=crop"
-              alt="SCANALYZE dashboard mockup"
-              className="relative w-full rounded-xl border border-slate-200 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-800"
-              loading="lazy"
-            />
+            {/* Keep aspect ratio to reserve space and avoid CLS */}
+            <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 shadow-lg dark:border-slate-800 aspect-[16/10]">
+              <img
+                src="https://images.unsplash.com/photo-1523246196481-cd2c5bc5d8f4?q=80&w=1600&auto=format&fit=crop"
+                alt="SCANALYZE dashboard mockup"
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.dataset.fallback) return; // prevent loop
+                  target.dataset.fallback = '1';
+                  // Fallback to a reliable placeholder
+                  target.src = 'https://placehold.co/1600x1000/png?text=SCANALYZE+Dashboard+Mockup';
+                }}
+              />
+            </div>
           </div>
         </div>
       </section>
