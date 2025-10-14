@@ -9,11 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.5  # Lowered to detect more filled bubbles
-        self.bubble_min_area = 40  # Slightly smaller minimum
-        self.bubble_max_area = 2500  # Increased for larger sheets
-        self.aspect_ratio_threshold = 0.4  # More lenient for varied bubble shapes
-        self.column_gap_threshold = 50  # Minimum gap to consider as column separator
+        self.confidence_threshold = 0.45  # Optimized for filled bubbles
+        self.bubble_min_area = 30  # Smaller for tight layouts
+        self.bubble_max_area = 3000  # Wider range for varied resolutions
+        self.aspect_ratio_threshold = 0.5  # Balanced for circular bubbles
+        self.column_gap_threshold = 40  # Adjusted for tight column spacing
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -119,9 +119,9 @@ class OMRProcessor:
         Preprocess the image for better bubble detection.
         Enhanced for large sheets with 200+ questions.
         """
-        # Resize if image is too large (for performance)
+        # Resize if image is too large (for performance), but keep good resolution
         height, width = image.shape[:2]
-        max_dimension = 3000
+        max_dimension = 3500  # Increased for better detail preservation
         
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
@@ -132,19 +132,23 @@ class OMRProcessor:
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Apply Gaussian blur to reduce noise
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        # Apply bilateral filter to preserve edges while reducing noise
+        denoised = cv2.bilateralFilter(gray, 9, 75, 75)
         
-        # Apply adaptive threshold with larger block size for bigger sheets
+        # Apply Gaussian blur
+        blurred = cv2.GaussianBlur(denoised, (3, 3), 0)
+        
+        # Apply adaptive threshold with optimized parameters
         block_size = 15 if max(height, width) > 2000 else 11
         thresh = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, block_size, 2
+            cv2.THRESH_BINARY_INV, block_size, 3
         )
         
-        # Apply morphological operations to clean up the image
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        # Apply morphological operations to clean up and separate touching bubbles
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
+        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_CLOSE, kernel, iterations=1)
         
         return cleaned
     
@@ -369,28 +373,40 @@ class OMRProcessor:
         if not bubbles:
             return []
         
+        if len(bubbles) == 1:
+            return [[bubbles[0]]]
+        
         # Calculate adaptive row threshold based on bubble density
-        if len(bubbles) > 1:
-            y_coords = sorted([b['center'][1] for b in bubbles])
-            y_diffs = [y_coords[i+1] - y_coords[i] for i in range(len(y_coords)-1)]
-            # Use median of small differences as row threshold
+        y_coords = sorted([b['center'][1] for b in bubbles])
+        y_diffs = [y_coords[i+1] - y_coords[i] for i in range(len(y_coords)-1) if y_coords[i+1] - y_coords[i] > 0]
+        
+        if y_diffs:
+            # Use percentile-based approach for better handling of tight spacing
             small_diffs = [d for d in y_diffs if d < 100]
-            row_threshold = np.median(small_diffs) * 1.5 if small_diffs else 30
+            if small_diffs:
+                # Use 75th percentile of small differences
+                row_threshold = np.percentile(small_diffs, 75) * 1.3
+            else:
+                row_threshold = np.median(y_diffs) * 0.8 if y_diffs else 25
         else:
-            row_threshold = 30
+            row_threshold = 25
+        
+        # Ensure minimum threshold for very tight layouts
+        row_threshold = max(row_threshold, 15)
         
         rows = []
         current_row = [bubbles[0]]
         
         for bubble in bubbles[1:]:
-            # Check if bubble is in the same row as current row
-            current_row_y = current_row[0]['center'][1]
+            # Use average y of current row for better grouping
+            current_row_y = np.mean([b['center'][1] for b in current_row])
             bubble_y = bubble['center'][1]
             
             if abs(bubble_y - current_row_y) <= row_threshold:
                 current_row.append(bubble)
             else:
-                rows.append(current_row)
+                if current_row:
+                    rows.append(current_row)
                 current_row = [bubble]
         
         if current_row:
