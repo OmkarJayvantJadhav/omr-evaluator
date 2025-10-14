@@ -40,7 +40,7 @@ const Navbar = () => {
   const navItems = user?.role === 'teacher' ? teacherNavItems : studentNavItems;
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-premium fixed w-full top-0 z-50 animate-fade-in">
+    <nav className="fixed top-0 z-50 w-full bg-white/70 dark:bg-slate-900/60 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200/60 dark:border-slate-800/60 shadow-md animate-fade-in">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and Brand */}
@@ -60,7 +60,7 @@ const Navbar = () => {
           </div>
 
           {/* Navigation Items */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item, index) => {
               const IconComponent = item.icon;
               const isActive = location.pathname === item.href;
@@ -68,12 +68,14 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`nav-item group ${
-                    isActive ? 'active' : ''
+                  className={`group inline-flex items-center rounded-xl px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                    isActive
+                      ? 'bg-blue-50 text-blue-700 shadow-sm dark:bg-slate-800/70 dark:text-blue-300'
+                      : 'text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:text-white dark:hover:bg-slate-800'
                   } animate-fade-in-up`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <div className={`p-2 rounded-lg bg-gradient-to-r ${item.gradient} ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity mr-2`}>
+                  <div className={`mr-2 p-2 rounded-lg bg-gradient-to-r ${item.gradient} ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
                     <IconComponent className="h-4 w-4 text-white" />
                   </div>
                   <span className="font-medium">{item.name}</span>
