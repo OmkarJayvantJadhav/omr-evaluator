@@ -29,7 +29,15 @@ export default function HomePage() {
   useEffect(() => {
     const root = document.documentElement;
     if (darkMode) root.classList.add('dark'); else root.classList.remove('dark');
+    try { localStorage.setItem('theme', darkMode ? 'dark' : 'light'); } catch {}
   }, [darkMode]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') setDarkMode(true);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const canvas = particlesRef.current;
