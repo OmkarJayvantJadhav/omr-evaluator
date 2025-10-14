@@ -13,9 +13,18 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const carouselImages = [
-    'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1551281044-8b29a0dd7d51?q=80&w=1200&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1516383607781-913a19294fd1?q=80&w=1200&auto=format&fit=crop'
+    '/assets/1.png',
+    '/assets/2.png',
+    '/assets/3.png',
+    '/assets/4.png',
+    '/assets/5.png',
+    '/assets/6.png',
+    '/assets/7.png',
+    '/assets/8.png',
+    '/assets/9.png',
+    '/assets/10.png',
+    '/assets/11.png',
+    '/assets/12.png',
   ];
 
   useEffect(() => {
