@@ -33,25 +33,7 @@ const TeacherDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await teacherAPI.getDashboard();
-      const data = response.data || {};
-      const recent = Array.isArray(data.recent_results)
-        ? data.recent_results.map(r => {
-            const score = r?.score ?? r?.marks_obtained ?? r?.total ?? 0;
-            const maxMarks = r?.exam?.max_marks ?? r?.max_marks ?? r?.exam_max ?? 0;
-            const pct = typeof r?.percentage === 'number' && Number.isFinite(r.percentage)
-              ? r.percentage
-              : (maxMarks > 0 ? (score / maxMarks) * 100 : 0);
-            return {
-              id: r?.id ?? `${r?.exam_id ?? ''}-${r?.roll_number ?? r?.rollNo ?? r?.student_roll ?? ''}-${r?.created_at ?? r?.createdAt ?? r?.submitted_at ?? ''}`,
-              roll_number: r?.roll_number ?? r?.rollNo ?? r?.student_roll ?? '',
-              score,
-              exam: r?.exam ?? { max_marks: maxMarks },
-              percentage: pct,
-              created_at: r?.created_at ?? r?.createdAt ?? r?.submitted_at ?? null,
-            };
-          })
-        : [];
-      setDashboardData({ ...data, recent_results: recent });
+      setDashboardData(response.data);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       toast.error('Failed to load dashboard data');
@@ -301,10 +283,7 @@ const TeacherDashboard = () => {
             
             <CardContent>
               <div className="space-y-4">
-                {[...dashboardData.recent_results]
-                  .sort((a, b) => String(a.roll_number).localeCompare(String(b.roll_number), undefined, { numeric: true, sensitivity: 'base' }))
-                  .slice(0, 5)
-                  .map((result, index) => (
+                {dashboardData.recent_results.slice(0, 5).map((result, index) => (
                     <Card 
                       key={result.id} 
                       variant="plain" 
