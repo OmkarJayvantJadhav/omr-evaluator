@@ -168,7 +168,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-cyan-50/30 dark:from-blue-900/20 dark:to-cyan-900/10" aria-hidden="true" />
       </div>
 
-      <header className="sticky top-0 z-20 border-b border-slate-200/60 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50 dark:border-slate-800/60 dark:bg-slate-900/60">
+      <header className="sticky top-0 z-20 border-b border-white/20 bg-white/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/50 shadow-premium dark:border-slate-800/60 dark:bg-slate-900/50">
         <nav aria-label="Primary" className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -196,18 +196,8 @@ export default function HomePage() {
               {darkMode ? 'Light' : 'Dark'}
             </button>
             <div className="flex items-center gap-2">
-              <a
-                href="/login"
-                className="rounded px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 dark:text-slate-200 dark:hover:text-white"
-              >
-                Login
-              </a>
-              <a
-                href="/register"
-                className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
-              >
-                Sign Up
-              </a>
+              <a href="/login" className="btn btn-secondary btn-sm">Login</a>
+              <a href="/register" className="btn btn-primary btn-sm">Sign Up</a>
             </div>
           </div>
 
@@ -233,8 +223,8 @@ export default function HomePage() {
               <a href="#how-it-works" className="block rounded px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">How it works</a>
               <a href="#demo" className="block rounded px-3 py-2 text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">Demo</a>
               <div className="flex items-center gap-2 pt-2">
-                <a href="/login" className="flex-1 rounded px-3 py-2 text-center font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">Login</a>
-                <a href="/register" className="flex-1 rounded bg-blue-600 px-3 py-2 text-center font-semibold text-white hover:bg-blue-700">Sign Up</a>
+                <a href="/login" className="flex-1 btn btn-secondary">Login</a>
+                <a href="/register" className="flex-1 btn btn-primary">Sign Up</a>
               </div>
               <button
                 type="button"
@@ -325,7 +315,7 @@ export default function HomePage() {
             { title: 'Upload', desc: 'Drag & drop OMR images or PDF.', icon: 'M4 12h16M12 4v16' },
             { title: 'Analyze', desc: 'AI-powered bubble detection.', icon: 'M12 3l7 7-7 7-7-7 7-7z' },
             { title: 'Review', desc: 'Instant scoring & breakdown.', icon: 'M5 13l4 4L19 7' },
-            { title: 'Export', desc: 'CSV/PDF reports in one click.', icon: 'M4 4h16v12H4zM8 20h8' }
+            { title: 'Export', desc: 'PDF reports in one click.', icon: 'M4 4h16v12H4zM8 20h8' }
           ].map((s, i) => (
             <div
               key={s.title}
