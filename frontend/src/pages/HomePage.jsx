@@ -339,9 +339,11 @@ export default function HomePage() {
               No credit card required — free to try.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Replaced mockup with premium highlights */}
-          <section className="py-16 bg-slate-50 dark:bg-slate-900">
+      {/* Replaced mockup with premium highlights */}
+      <section className="py-16 bg-slate-50 dark:bg-slate-900">
   <div className="max-w-6xl mx-auto px-6">
     <h2 className="text-3xl font-bold text-center mb-12 text-slate-800 dark:text-slate-100">
       Why Choose SCANALYZE
