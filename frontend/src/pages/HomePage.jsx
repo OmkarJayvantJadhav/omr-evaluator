@@ -161,6 +161,11 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
+  // Ensure hero becomes visible even if IntersectionObserver is throttled
+  useEffect(() => {
+    if (heroRef.current) heroRef.current.classList.add('in-view');
+  }, []);
+
   useEffect(() => {
     if (isReducedMotion) return;
     const interval = setInterval(() => {
@@ -290,7 +295,7 @@ export default function HomePage() {
 
       <section
         ref={heroRef}
-        className="mx-auto max-w-7xl px-4 pt-16 sm:pt-20 pb-16 sm:pb-24 lg:pb-28 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0"
+        className="mx-auto max-w-7xl px-4 pt-16 sm:pt-20 pb-16 sm:pb-24 lg:pb-28 sm:px-6 lg:px-8 transition-all duration-700"
       >
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
