@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -53,6 +53,9 @@ const PublicRoute = ({ children }) => {
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
+  const isHome = location.pathname === '/' || location.pathname === '/home';
+  const showNavbar = isAuthenticated && !isHome;
 
   if (loading) {
     return <LoadingSpinner />;
@@ -60,8 +63,8 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {isAuthenticated && <Navbar />}
-      <main className={isAuthenticated ? 'pt-16' : ''}>
+      {showNavbar && <Navbar />}
+      <main className={showNavbar ? 'pt-16' : ''}>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
