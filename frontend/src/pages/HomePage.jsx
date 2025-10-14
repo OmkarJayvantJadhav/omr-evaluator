@@ -338,7 +338,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-          <div className="relative aspect-[16/9] w-full">
+          <div className="relative aspect-[16/9] w-full p-2">
             {carouselImages.map((src, i) => (
               <img
                 key={src}
