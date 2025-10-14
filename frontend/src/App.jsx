@@ -64,14 +64,8 @@ const AppContent = () => {
       <main className={isAuthenticated ? 'pt-16' : ''}>
         <Routes>
           {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <HomePage />
-              </PublicRoute>
-            }
-          />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route
             path="/login"
             element={
