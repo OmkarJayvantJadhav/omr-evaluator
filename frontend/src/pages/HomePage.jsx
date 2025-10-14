@@ -277,42 +277,7 @@ export default function HomePage() {
 </section>
 
 
-      {/* Interactive 3D section (premium animated background element) */}
-      {/*
-        IMPORTANT: This section depends on a 3D component and model assets.
-        - Component expected at: src/components/FluidGlass.jsx (default export)
-        - Models expected under: public/assets/3d/
-          e.g. public/assets/3d/lens.glb, bar.glb, cube.glb
-        If the component is missing, this section will be skipped gracefully.
-      */}
-      {FluidGlassComp && (
-        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-4 shadow-premium backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/40">
-            <h2 className="text-2xl font-bold">A premium, interactive visual</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Smooth, GPU-accelerated render with graceful fallbacks.</p>
-            <div className="relative mt-4 w-full overflow-hidden rounded-xl border border-slate-200 bg-white/40 shadow-inner dark:border-slate-800 dark:bg-slate-900/30">
-              <div className="relative h-[420px] sm:h-[520px] lg:h-[600px]">
-                <FluidGlassComp
-                  // Modes: "lens", "bar", or "cube"
-                  mode="lens"
-                  // Customize props per mode below. Ensure corresponding .glb models exist under public/assets/3d
-                  lensProps={{
-                    scale: 0.25,
-                    ior: 1.15,
-                    thickness: 5,
-                    chromaticAberration: 0.1,
-                    anisotropy: 0.01,
-                  }}
-                  barProps={{}}
-                  cubeProps={{}}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Liquid Ether foreground demo removed since it's now the background */}
+      {/* 3D section removed */}
 
       <section id="how-it-works" ref={stepsRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
         <h2 className="text-3xl font-bold">How it works</h2>
