@@ -494,6 +494,7 @@ export default function LiquidEther({
         }
       }
       update() {
+        if (!Common.renderer) return;
         Common.renderer.setRenderTarget(this.props.output || null);
         Common.renderer.render(this.scene, this.camera);
         Common.renderer.setRenderTarget(null);
@@ -900,6 +901,7 @@ export default function LiquidEther({
         this.simulation.resize();
       }
       render() {
+        if (!Common.renderer) return;
         Common.renderer.setRenderTarget(null);
         Common.renderer.render(this.scene, this.camera);
       }
@@ -1030,7 +1032,19 @@ export default function LiquidEther({
       };
       applyOptionsFromProps();
 
-      webgl.start();
+      // Only start when core objects exist; otherwise retry next frame
+      const tryStart = () => {
+        if (!webglRef.current) return;
+        const ready = !!(Common.renderer && webglRef.current.output && webglRef.current.output.scene);
+        if (ready) {
+          if (!document.hidden && isVisibleRef.current) {
+            webglRef.current.start();
+          }
+        } else {
+          requestAnimationFrame(tryStart);
+        }
+      };
+      tryStart();
     });
 
     // IntersectionObserver to pause rendering when not visible
