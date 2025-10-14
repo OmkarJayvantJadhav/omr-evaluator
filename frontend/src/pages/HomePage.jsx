@@ -172,7 +172,7 @@ export default function HomePage() {
         <nav aria-label="Primary" className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <span className="absolute -right-3 -top-2 rounded-full bg-cyan-400 px-1.5 py-0.5 text-[10px] font-semibold text-slate-900 shadow-sm dark:text-slate-900 animate-pulse" aria-label="Beta badge">Beta</span>
+             
               <a href="/" className="flex items-center gap-3" aria-label="SCANALYZE home">
                 <div className="mx-0 h-9 w-9 flex items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 shadow-glow">
                   <QrCodeIcon className="h-5 w-5 text-white" aria-hidden="true" />
@@ -255,9 +255,7 @@ export default function HomePage() {
       >
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow mb-6">
-              <QrCodeIcon className="h-8 w-8 text-white" />
-            </div>
+           
             <h1 className="heading-lg font-brand gradient-text mb-2">
               SCANALYZE
             </h1>
