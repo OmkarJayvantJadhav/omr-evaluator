@@ -115,7 +115,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-cyan-50/30 dark:from-blue-900/20 dark:to-cyan-900/10" aria-hidden="true" />
       </div>
 
-      <header className="sticky top-0 z-20 border-b border-white/20 bg-white/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/50 shadow-premium dark:border-slate-800/60 dark:bg-slate-900/50">
+      <header className="sticky top-0 z-20  border-white/20 bg-white/60 backdrop-blur-md supports-[backdrop-filter]:bg-white/50 shadow-none dark:border-slate-800/60 dark:bg-slate-900/50">
         <nav aria-label="Primary" className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -193,13 +193,13 @@ export default function HomePage() {
         <div>
           <div>
            
-            <h1 className="heading-lg font-brand gradient-text mb-2">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-brand gradient-text mb-2">
               SCANALYZE
             </h1>
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+            <h2 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight">
               Scan. Analyze. Grade — Faster.
             </h2>
-            <p className="mt-4 max-w-xl text-lg text-slate-600 dark:text-slate-300">
+            <p className="mt-4 max-w-2xl text-xl sm:text-2xl text-slate-600 dark:text-slate-300">
               SCANALYZE evaluates OMR sheets with AI-grade accuracy, delivers instant analytics, and exports results effortlessly.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
