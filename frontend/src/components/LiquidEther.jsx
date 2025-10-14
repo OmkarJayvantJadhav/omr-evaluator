@@ -488,7 +488,9 @@ export default function LiquidEther({
           this.material = new THREE.RawShaderMaterial(this.props.material);
           this.geometry = new THREE.PlaneGeometry(2.0, 2.0);
           this.plane = new THREE.Mesh(this.geometry, this.material);
-          this.scene.add(this.plane);
+          if (this.scene && typeof this.scene.add === 'function') {
+            this.scene.add(this.plane);
+          }
         }
       }
       update() {
@@ -534,7 +536,9 @@ export default function LiquidEther({
           uniforms: this.uniforms
         });
         this.line = new THREE.LineSegments(boundaryG, boundaryM);
-        this.scene.add(this.line);
+        if (this.scene && typeof this.scene.add === 'function') {
+          this.scene.add(this.line);
+        }
       }
       update({ dt, isBounce, BFECC }) {
         this.uniforms.dt.value = dt;
@@ -565,7 +569,9 @@ export default function LiquidEther({
           }
         });
         this.mouse = new THREE.Mesh(mouseG, mouseM);
-        this.scene.add(this.mouse);
+        if (this.scene && typeof this.scene.add === 'function') {
+          this.scene.add(this.mouse);
+        }
       }
       update(props) {
         const forceX = (Mouse.diff.x / 2) * props.mouse_force;
@@ -881,10 +887,14 @@ export default function LiquidEther({
             }
           })
         );
-        this.scene.add(this.output);
+        if (this.scene && typeof this.scene.add === 'function') {
+          this.scene.add(this.output);
+        }
       }
       addScene(mesh) {
-        this.scene.add(mesh);
+        if (this.scene && typeof this.scene.add === 'function' && mesh) {
+          this.scene.add(mesh);
+        }
       }
       resize() {
         this.simulation.resize();
@@ -983,41 +993,45 @@ export default function LiquidEther({
     container.style.position = container.style.position || 'relative';
     container.style.overflow = container.style.overflow || 'hidden';
 
-    const webgl = new WebGLManager({
-      $wrapper: container,
-      autoDemo,
-      autoSpeed,
-      autoIntensity,
-      takeoverDuration,
-      autoResumeDelay,
-      autoRampDuration
-    });
-    webglRef.current = webgl;
-
-    const applyOptionsFromProps = () => {
-      if (!webglRef.current) return;
-      const sim = webglRef.current.output?.simulation;
-      if (!sim) return;
-      const prevRes = sim.options.resolution;
-      Object.assign(sim.options, {
-        mouse_force: mouseForce,
-        cursor_size: cursorSize,
-        isViscous,
-        viscous,
-        iterations_viscous: iterationsViscous,
-        iterations_poisson: iterationsPoisson,
-        dt,
-        BFECC,
-        resolution,
-        isBounce
+    // Defer WebGL init by one frame to ensure DOM is fully ready
+    let initRaf = requestAnimationFrame(() => {
+      if (!mountRef.current) return;
+      const webgl = new WebGLManager({
+        $wrapper: container,
+        autoDemo,
+        autoSpeed,
+        autoIntensity,
+        takeoverDuration,
+        autoResumeDelay,
+        autoRampDuration
       });
-      if (resolution !== prevRes) {
-        sim.resize();
-      }
-    };
-    applyOptionsFromProps();
+      webglRef.current = webgl;
 
-    webgl.start();
+      const applyOptionsFromProps = () => {
+        if (!webglRef.current) return;
+        const sim = webglRef.current.output?.simulation;
+        if (!sim) return;
+        const prevRes = sim.options.resolution;
+        Object.assign(sim.options, {
+          mouse_force: mouseForce,
+          cursor_size: cursorSize,
+          isViscous,
+          viscous,
+          iterations_viscous: iterationsViscous,
+          iterations_poisson: iterationsPoisson,
+          dt,
+          BFECC,
+          resolution,
+          isBounce
+        });
+        if (resolution !== prevRes) {
+          sim.resize();
+        }
+      };
+      applyOptionsFromProps();
+
+      webgl.start();
+    });
 
     // IntersectionObserver to pause rendering when not visible
     const io = new IntersectionObserver(
@@ -1050,6 +1064,7 @@ export default function LiquidEther({
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (initRaf) cancelAnimationFrame(initRaf);
       if (resizeObserverRef.current) {
         try {
           resizeObserverRef.current.disconnect();
