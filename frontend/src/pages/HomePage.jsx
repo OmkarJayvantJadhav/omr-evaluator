@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import anime from 'animejs';
 import { QrCodeIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 
@@ -7,15 +6,11 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const ENABLE_LIQUID = (import.meta.env.VITE_ENABLE_LIQUID_ETHER === 'true');
-  const particlesRef = useRef(null);
   const heroRef = useRef(null);
   const stepsRef = useRef(null);
   const featuresRef = useRef(null);
   const carouselRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [FluidGlassComp, setFluidGlassComp] = useState(null);
-  const [LiquidEtherComp, setLiquidEtherComp] = useState(null);
 
   const carouselImages = [
     'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1200&auto=format&fit=crop',
@@ -31,28 +26,7 @@ export default function HomePage() {
     return () => mq.removeEventListener?.('change', updateReduced);
   }, []);
 
-  // Lazy-load FluidGlass/LiquidEther only when motion is allowed and feature enabled
-  useEffect(() => {
-    if (isReducedMotion || !ENABLE_LIQUID) return;
-    let isMounted = true;
-    import('../components/FluidGlass')
-      .then((m) => {
-        if (isMounted) setFluidGlassComp(() => m.default);
-      })
-      .catch(() => {
-        // Silently skip if component not present; homepage continues to work
-      });
-    import('../components/LiquidEther')
-      .then((m) => {
-        if (isMounted) setLiquidEtherComp(() => m.default);
-      })
-      .catch(() => {
-        // optional background; ignore if missing
-      });
-    return () => {
-      isMounted = false;
-    };
-  }, [isReducedMotion, ENABLE_LIQUID]);
+  // Background visuals removed
 
   useEffect(() => {
     const root = document.documentElement;
@@ -67,91 +41,8 @@ export default function HomePage() {
     } catch {}
   }, []);
 
-  useEffect(() => {
-    const canvas = particlesRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: true });
-    let particles = [];
-    let animation = null;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-
-    function resize() {
-      canvas.width = canvas.clientWidth * DPR;
-      canvas.height = canvas.clientHeight * DPR;
-      if (!isReducedMotion) {
-        initParticles();
-      } else {
-        particles = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-    }
-
-    function initParticles() {
-      const count = Math.floor((canvas.clientWidth * canvas.clientHeight) / 22000);
-      particles = Array.from({ length: Math.max(24, count) }).map(() => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 * DPR + 0.6 * DPR,
-        a: Math.random() * 0.6 + 0.2
-      }));
-      animateParticles();
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(34, 211, 238, ${p.a})`;
-        ctx.fill();
-      }
-    }
-
-    function animateParticles() {
-      if (isReducedMotion) return;
-      animation = anime({
-        targets: particles,
-        x: () => `+=${(Math.random() - 0.5) * 30}`,
-        y: () => `+=${(Math.random() - 0.5) * 30}`,
-        a: () => Math.random() * 0.5 + 0.2,
-        duration: 4000,
-        easing: 'easeInOutSine',
-        direction: 'alternate',
-        loop: true,
-        update: draw
-      });
-    }
-
-    function onScrollParallax() {
-      if (isReducedMotion) return;
-      const scrolled = window.scrollY || window.pageYOffset;
-      canvas.style.transform = `translate3d(0, ${scrolled * 0.04}px, 0)`;
-    }
-
-    resize();
-    window.addEventListener('resize', resize);
-    window.addEventListener('scroll', onScrollParallax, { passive: true });
-
-    if (isReducedMotion) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      grad.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
-      grad.addColorStop(1, 'rgba(34, 211, 238, 0.15)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    return () => {
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('scroll', onScrollParallax);
-      if (animation && typeof animation.pause === 'function') {
-        animation.pause();
-      }
-      if (animation && typeof animation.destroy === 'function') {
-        animation.destroy();
-      }
-    };
-  }, [isReducedMotion]);
+  // Particles disabled
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const sections = [heroRef, stepsRef, featuresRef, carouselRef].map(r => r.current).filter(Boolean);
@@ -196,35 +87,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 dark:from-slate-900 dark:to-slate-950 dark:text-slate-100 selection:bg-blue-200/60 dark:selection:bg-blue-800/60">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        {/* Prefer LiquidEther as background if available; else fall back to particles canvas */}
-        {LiquidEtherComp ? (
-          <div className="absolute inset-0">
-            <LiquidEtherComp
-              colors={[ '#5227FF', '#FF9FFC', '#B19EEF' ]}
-              mouseForce={16}
-              cursorSize={90}
-              isViscous={false}
-              viscous={30}
-              iterationsViscous={32}
-              iterationsPoisson={32}
-              resolution={0.5}
-              isBounce={false}
-              autoDemo={true}
-              autoSpeed={0.45}
-              autoIntensity={2.0}
-              takeoverDuration={0.25}
-              autoResumeDelay={3000}
-              autoRampDuration={0.6}
-              className="pointer-events-none"
-            />
-          </div>
-        ) : (
-          <canvas
-            ref={particlesRef}
-            aria-hidden="true"
-            className="h-full w-full transition-transform duration-300 will-change-transform"
-          />
-        )}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-cyan-50/30 dark:from-blue-900/20 dark:to-cyan-900/10" aria-hidden="true" />
       </div>
 
