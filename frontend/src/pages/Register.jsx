@@ -166,7 +166,7 @@ const Register = () => {
                         }`}>
                           <AcademicCapIcon className="h-5 w-5 text-white" />
                         </div>
-                        <h4 className="font-semibold text-sm">Student</h4>
+                        <h4 className="font-semibold text-sm text-neutral-900">Student</h4>
                         <p className="text-xs text-neutral-500 mt-1">Take exams & view results</p>
                       </div>
                     </button>
@@ -186,7 +186,7 @@ const Register = () => {
                         }`}>
                           <QrCodeIcon className="h-5 w-5 text-white" />
                         </div>
-                        <h4 className="font-semibold text-sm">Teacher</h4>
+                        <h4 className="font-semibold text-sm text-neutral-900">Teacher</h4>
                         <p className="text-xs text-neutral-500 mt-1">Create & manage exams</p>
                       </div>
                     </button>
