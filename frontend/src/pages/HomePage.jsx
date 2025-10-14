@@ -221,6 +221,43 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section id="how-it-works" ref={stepsRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 transition-all duration-700">
+        <h2 className="text-3xl font-bold">How it works</h2>
+        <p className="mt-3 max-w-2xl text-slate-600 dark:text-slate-300">
+          Get from scan to insights in minutes — reliable, accurate, export-ready.
+        </p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { title: 'Upload', desc: 'Drag & drop OMR images or PDF.', icon: 'M4 12h16M12 4v16' },
+            { title: 'Analyze', desc: 'AI-powered bubble detection.', icon: 'M12 3l7 7-7 7-7-7 7-7z' },
+            { title: 'Review', desc: 'Instant scoring & breakdown.', icon: 'M5 13l4 4L19 7' },
+            { title: 'Export', desc: 'PDF reports in one click.', icon: 'M4 4h16v12H4zM8 20h8' }
+          ].map((s, i) => (
+            <div
+              key={s.title}
+              className="group rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md focus-within:shadow-md dark:border-slate-800 dark:bg-slate-900/60"
+              style={{ transitionDelay: `${i * 60}ms` }}
+              tabIndex={0}
+              aria-label={`${i + 1}. ${s.title}`}
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600/10 text-blue-600 shadow-inner">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d={s.icon} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{s.desc}</p>
+              <span className="mt-3 inline-flex items-center text-sm font-medium text-blue-700 opacity-0 transition group-hover:opacity-100 dark:text-blue-400">
+                Learn more
+                <svg className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M10.293 15.707a1 1 0 01-1.414-1.414L12.172 11H5a1 1 0 110-2h7.172l-3.293-3.293a1 1 0 011.414-1.414L16.707 10l-6.414 5.707z" />
+                </svg>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
      
 
       <section id="features" ref={featuresRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
