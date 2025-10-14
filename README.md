@@ -1,573 +1,273 @@
-# 🎓 OMR Sheet Evaluator App
+<div align="center">
 
-An intelligent **Optical Mark Recognition (OMR) and Result Processing System** for automated exam evaluation with modern web technologies.
+# 🎓 SCANALYZE
 
+### Smart OMR Sheet Evaluator
 
-## 🌐 Live Demo - FULLY OPERATIONAL
+*Automated exam evaluation with AI-grade accuracy*
 
-### ✅ **WORKING FRONTEND URLs (Choose Any)**
-- **🚀 Primary**: [https://scanalyze-smart-omr-evaluator.vercel.app](https://scanalyze-gamma.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge)](https://scanalyze-smart-omr-evaluator.vercel.app)
+[![Backend API](https://img.shields.io/badge/API-operational-blue?style=for-the-badge)](https://omr-evaluator-production.up.railway.app)
+[![License](https://img.shields.io/badge/license-MIT-purple?style=for-the-badge)](LICENSE)
 
+[Live Demo](https://scanalyze-smart-omr-evaluator.vercel.app) • [API Docs](https://omr-evaluator-production.up.railway.app/docs) • [Report Bug](https://github.com/OmkarJayvantJadhav/omr-evaluator/issues)
 
-### ✅ **WORKING BACKEND URLs**
-- **⚡ Backend API**: [https://omr-evaluator-production.up.railway.app](https://omr-evaluator-production.up.railway.app)
-- **📚 API Documentation**: [https://omr-evaluator-production.up.railway.app/docs](https://omr-evaluator-production.up.railway.app/docs)
-- **🔍 Health Check**: [https://omr-evaluator-production.up.railway.app/health](https://omr-evaluator-production.up.railway.app/health)
+</div>
 
-
-
-## 🎯 Project Overview
-
-The OMR Sheet Evaluator App is a comprehensive solution that automates the entire process of OMR-based exam evaluation. It enables teachers to create exams with customizable answer keys and allows students to submit OMR sheets for instant automated evaluation with detailed performance analytics.
+---
 
 
-## ✨ Key Features
 
-### 👨‍🏫 For Teachers:
-- ✅ **Smart Exam Creation** - Create exams with unique IDs and dynamic question counts
-- ✅ **Flexible Answer Keys** - Set up to 8 answer choices (A-H) per question
-- ✅ **Quick Fill Options** - Random or pattern-based answer key generation
-- ✅ **Advanced Analytics** - Comprehensive performance statistics and charts
-- ✅ **Export Results** - Download detailed performance reports
-- ✅ **Real-time Monitoring** - Track student submissions in real-time
+## 🎯 Overview
 
-### 👨‍🎓 For Students:
-- ✅ **Roll Number Authentication** - Secure login with student roll numbers
-- ✅ **Multi-format Upload** - Support for JPG, PNG, and PDF files
-- ✅ **Instant Results** - Real-time OMR processing and scoring
-- ✅ **Detailed Analysis** - Question-wise performance breakdown
-- ✅ **Visual Charts** - Interactive performance visualization
-- ✅ **History Tracking** - View all past exam attempts
+SCANALYZE is a comprehensive OMR (Optical Mark Recognition) evaluation system that automates exam grading with AI-powered accuracy. Teachers create exams with customizable answer keys, students upload their OMR sheets, and get instant results with detailed analytics.
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 👨‍🏫 For Teachers
+- 📝 Smart exam creation with flexible answer keys (A-H)
+- 🎲 Random answer key generation
+- 📊 Real-time analytics & performance tracking
+- 📥 Export results to CSV/PDF
+- 🔍 Question-wise performance insights
+
+</td>
+<td width="50%">
+
+### 👨‍🎓 For Students
+- 🔐 Secure roll number authentication
+- 📤 Multi-format upload (JPG, PNG, PDF)
+- ⚡ Instant automated grading
+- 📈 Detailed performance breakdown
+- 📊 Interactive charts & history
+
+</td>
+</tr>
+</table>
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework:** React 18 with Vite (fast build tool)
-- **Styling:** Tailwind CSS 3 with custom design system
-- **UI Components:** Heroicons, Custom premium components
-- **Charts:** Recharts for data visualization
-- **State Management:** React Context API
-- **HTTP Client:** Axios
-- **Notifications:** React Hot Toast
+```mermaid
+graph LR
+    A[React + Vite] --> B[FastAPI]
+    B --> C[MySQL/SQLite]
+    B --> D[OpenCV OMR Engine]
+    D --> E[Result Analytics]
+```
 
-### Backend
-- **Framework:** FastAPI (Python) - High-performance async API
-- **Database:** SQLAlchemy ORM with MySQL/SQLite support
-- **Authentication:** JWT with bcrypt password hashing
-- **File Processing:** Async file handling with aiofiles
-- **Validation:** Pydantic models with email validation
-
-### OMR Processing Engine
-- **Computer Vision:** OpenCV 4.8 for image processing
-- **Numerical Computing:** NumPy for mathematical operations
-- **Image Processing:** Pillow (PIL) for image manipulation
-- **OCR Support:** Tesseract integration
-- **PDF Support:** PDF2Image converter
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 18, Vite, Tailwind CSS, Recharts, Axios |
+| **Backend** | FastAPI, SQLAlchemy, JWT Auth, Pydantic |
+| **Database** | MySQL 8.0+ / SQLite |
+| **OMR Engine** | OpenCV 4.8, NumPy, Pillow, Tesseract OCR |
+| **Deployment** | Vercel (Frontend), Railway (Backend), Docker |
 
 ## 📁 Project Structure
 
 ```
 omr-evaluator/
-├── 📂 frontend/                    # React + Vite Frontend
-│   ├── 📂 src/
-│   │   ├── 📂 components/          # Reusable UI components
-│   │   │   ├── 📂 ui/              # Base UI components (Button, Card, Input)
-│   │   │   ├── LoadingSpinner.jsx  # Loading component
-│   │   │   └── Navbar.jsx          # Navigation component
-│   │   ├── 📂 context/             # React Context providers
-│   │   │   └── AuthContext.jsx     # Authentication state management
-│   │   ├── 📂 pages/               # Page components
-│   │   │   ├── CreateExam.jsx      # Exam creation with random fill
-│   │   │   ├── TeacherDashboard.jsx # Teacher analytics dashboard
-│   │   │   ├── StudentDashboard.jsx # Student portal
-│   │   │   ├── UploadOMR.jsx       # OMR sheet upload
-│   │   │   └── ViewResult.jsx      # Result visualization
-│   │   ├── 📂 utils/               # Utility functions
-│   │   └── index.css               # Tailwind CSS styles
-│   ├── package.json                # Optimized dependencies (9 core packages)
-│   └── tailwind.config.js          # Custom design system
-├── 📂 backend/                     # FastAPI Backend
-│   ├── 📂 uploads/                 # File upload storage (auto-created)
-│   ├── 📂 venv/                    # Python virtual environment
-│   ├── auth.py                     # JWT authentication logic
-│   ├── database.py                 # SQLAlchemy database configuration
-│   ├── main.py                     # FastAPI application entry point
-│   ├── models.py                   # Database models (User, Exam, Result)
-│   ├── omr_processor.py            # OMR image processing engine
-│   ├── schemas.py                  # Pydantic request/response models
-│   ├── requirements.txt            # Optimized dependencies (16 core packages)
-│   └── .env                        # Environment configuration
-├── 📂 docs/                        # Project documentation
-├── setup.bat                       # Windows setup script
-└── README.md                       # This file
+├── frontend/              # React + Vite
+│   ├── src/
+│   │   ├── components/    # UI components
+│   │   ├── pages/         # Route pages
+│   │   ├── context/       # Auth & state
+│   │   └── utils/         # Helpers
+│   └── package.json
+│
+├── backend/               # FastAPI
+│   ├── main.py           # API entry
+│   ├── auth.py           # JWT auth
+│   ├── database.py       # DB config
+│   ├── models.py         # DB models
+│   ├── omr_processor.py  # OMR engine
+│   └── requirements.txt
+│
+└── docker-compose.yml    # Docker setup
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Python 3.11+** (for backend)
-- **Node.js 18+** (for frontend)
-- **MySQL 8.0+** (for database) - *Recommended*
-- **Git** (for cloning)
+- Python 3.11+
+- Node.js 18+
+- MySQL 8.0+ (recommended) or SQLite
 
-### 🎯 One-Click Setup (Windows)
-```batch
-# Clone the repository
-git clone <repository-url>
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/OmkarJayvantJadhav/omr-evaluator.git
 cd omr-evaluator
-# Run setup (uses SQLite by default). For MySQL, see Deployment Guide below.
-setup.bat
-```
 
-### 🔧 Manual Setup
-
-#### 1. Database Setup (MySQL Recommended)
-```bash
-# Install MySQL 8.0+ from https://dev.mysql.com/downloads/installer/
-# Create database and user:
-mysql -u root -p
-CREATE DATABASE omr_evaluator CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'omr_user'@'localhost' IDENTIFIED BY 'omr_password';
-GRANT ALL PRIVILEGES ON omr_evaluator.* TO 'omr_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-#### 2. Backend Setup
-```bash
-# Navigate to backend directory
+# Backend setup
 cd backend
-
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-# source venv/bin/activate
-
-# Install optimized dependencies (16 packages)
+venv\Scripts\activate  # Windows | source venv/bin/activate (Linux/Mac)
 pip install -r requirements.txt
-```
 
-#### 3. Frontend Setup
-```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install optimized dependencies (9 core packages)
+# Frontend setup
+cd ../frontend
 npm install
 
-# Build for production (optional)
-npm run build
+# Configure environment
+# Create backend/.env with your database URL and secret key
 ```
 
-#### 4. Environment Configuration
-Create `.env` file in `backend/` directory:
-```env
-# Database Configuration (MySQL recommended)
-DATABASE_URL=mysql+pymysql://omr_user:omr_password@localhost:3306/omr_evaluator
-# Alternative: DATABASE_URL=sqlite:///./omr_evaluator.db
+### Run Development Servers
 
-SECRET_KEY=your-super-secret-key-change-in-production
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MINUTES=30
-
-# OMR Resubmission Settings
-ALLOW_RESUBMISSION=true                    # Allow students to resubmit OMR sheets (true/false)
-REQUIRE_TEACHER_APPROVAL=false             # Require teacher approval for resubmissions (future feature)
-```
-
-**Configuration Options:**
-- `ALLOW_RESUBMISSION=true`: Students can resubmit OMR sheets (replaces previous submission)
-- `ALLOW_RESUBMISSION=false`: Students get blocked after first submission (original behavior)
-- Default: `true` (resubmissions allowed)
-
-> 📝 **Note:** For detailed MySQL setup and migration, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). You can also use `backend/migrate_to_mysql.py` for migrating from SQLite to MySQL.
-
-## 🚀 Running the Application
-
-### Development Mode
-
-#### 1. Start Backend Server
 ```bash
+# Terminal 1 - Backend
 cd backend
-# Activate virtual environment first
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate
+uvicorn main:app --reload --port 8000
 
-# Start FastAPI development server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-✅ **Backend:** http://localhost:8000  
-📚 **API Docs:** http://localhost:8000/docs (Interactive Swagger UI)
-
-#### 2. Start Frontend Development Server
-```bash
+# Terminal 2 - Frontend
 cd frontend
-# Start Vite development server
 npm run dev
 ```
-✅ **Frontend:** http://localhost:3000 (auto-opens in browser)
-> 🧩 Dev proxy: Frontend requests to `/api/...` are proxied to `http://localhost:8000` as configured in `frontend/vite.config.js`.
 
-### Production Mode
-```bash
-# Build frontend for production
-cd frontend
-npm run build
+**Access:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
 
-# Start backend in production mode
-cd ../backend
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
+## 👤 Demo Accounts
 
-## 👤 Demo Accounts & Authentication
+| Role | Username | Password | Roll Number |
+|------|----------|----------|-------------|
+| 👨‍🏫 Teacher | `teacher` | `password` | - |
+| 👨‍🎓 Student | `student` | `password` | `2024001` |
 
-### 🏫 Teacher Account
-- **Username:** `teacher`
-- **Email:** `teacher@example.com`
-- **Password:** `password`
-- **Role:** Teacher
-- **Permissions:** Create exams, view all results, analytics dashboard
+> **Note:** Demo accounts for testing. Production requires email validation and secure passwords.
 
-### 🎓 Student Account
-- **Username:** `student`  
-- **Email:** `student@example.com`
-- **Password:** `password`
-- **Roll Number:** `2024001`
-- **Role:** Student
-- **Permissions:** Upload OMR, view own results
+## 📋 Usage Guide
 
-> 📝 **Note:** These are demo accounts for testing. In production:
-> - Users must register with valid email addresses
-> - Students must provide unique roll numbers
-> - Passwords are bcrypt-hashed and stored securely
-> - JWT tokens expire after 30 minutes
+### 👨‍🏫 Teachers
+1. **Create Exam** → Set exam ID, questions (1-100), answer choices (A-H)
+2. **Setup Answer Key** → Manual entry, quick fill, or random generation
+3. **Monitor Results** → Real-time analytics, question-wise performance, export reports
 
-## 📋 How to Use
-
-### 👨‍🏫 For Teachers:
-
-#### 1. 🔐 Login & Setup
-- Login with teacher credentials
-- Access the teacher dashboard with analytics overview
-
-#### 2. 📝 Create Exam
-- Click **"Create New Exam"**
-- Enter unique **Exam ID** (e.g., `MATH101`, `PHYS201`)
-- Set **number of questions** (1-100)
-- Choose **answer choices** (2-8 options: A-H)
-- Set **maximum marks** for scoring
-
-#### 3. 🎯 Setup Answer Key
-- **Manual Entry:** Click each correct answer
-- **Quick Fill:** Use "All A", "All B" etc. buttons
-- **🎲 Random Fill:** NEW! Generate random answer patterns
-- Save and share **Exam ID** with students
-
-#### 4. 📊 Monitor Results
-- View **real-time submissions** as students upload
-- Access **detailed analytics**: scores, question-wise performance
-- Export results for further analysis
-
-### 👨‍🎓 For Students:
-
-#### 1. 🔐 Register & Login
-- Create account with **valid email** and **unique roll number**
-- **IMPORTANT**: For students, roll number is **required**
-- **IMPORTANT**: For teachers, do **NOT** include roll number
-- Roll numbers are required for OMR submissions
-
-#### 2. 🎯 Find Exam
-- Enter **Exam ID** provided by teacher
-- View exam details (questions, marks, time limit)
-
-#### 3. 📄 Fill OMR Sheet
-- Use **dark pencil/pen** for clear marks
-- Fill bubbles **completely** - avoid partial marks
-- Write **roll number clearly** on the sheet
-
-#### 4. 📤 Upload & Submit
-- Upload **clear photo/scan** (JPG, PNG, PDF)
-- Wait for **automatic processing** (usually < 30 seconds)
-- View **instant results** with detailed breakdown
-
-#### 5. 📈 View Performance
-- Check **score and percentage**
-- Review **question-wise analysis**
-- View **performance charts** and trends
+### 👨‍🎓 Students
+1. **Register** → Valid email + unique roll number (required)
+2. **Find Exam** → Enter exam ID from teacher
+3. **Fill OMR** → Use dark pen/pencil, fill bubbles completely
+4. **Upload** → Clear photo/scan (JPG, PNG, PDF, max 10MB)
+5. **View Results** → Instant scoring with detailed breakdown
 
 ## 📋 OMR Sheet Requirements
 
-### 📷 Image Quality
-- **📱 Format:** Clear photo or high-quality scan
-- **📎 File Types:** JPG, PNG, PDF (max 10MB per file)
-- **💡 Lighting:** Well-lit, avoid shadows and glare
-- **📐 Alignment:** Straight, not tilted or skewed
-- **🔍 Resolution:** Minimum 300 DPI for scans
+| Aspect | Requirements |
+|--------|-------------|
+| **Format** | JPG, PNG, PDF (max 10MB) |
+| **Quality** | Clear, well-lit, 300+ DPI |
+| **Alignment** | Straight, no tilt/skew |
+| **Marking** | Complete dark fills (2B pencil/black pen) |
+| **Layout** | 1-100 questions, A-H answer choices |
 
-### ✏️ Marking Guidelines
-- **🎯 Bubble Filling:** Complete, dark fills - no partial marks
-- **✏️ Writing Tool:** Dark pencil (2B/HB) or black pen
-- **🚫 Avoid:** Light marks, crosses, checkmarks, or multiple marks per question
-- **📝 Roll Number:** Clearly written and bubbled (if applicable)
+> **Tip:** Auto skew correction and noise reduction included!
 
-### 📄 Layout Support
-- **🔤 Choices:** Flexible support for A-H options (2-8 choices)
-- **📊 Questions:** 1-100 questions per exam
-- **🎨 Template:** Works with most standard OMR layouts
-- **🔄 Processing:** Automatic skew correction and noise reduction
+## 🔌 API Documentation
 
-## 🔌 API Endpoints
+**Interactive API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
-All endpoints are prefixed with `/api`.
+Key endpoints:
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - JWT authentication
+- `POST /api/exams/create` - Create exam (Teacher)
+- `POST /api/omr/upload` - Upload & process OMR (Student)
+- `GET /api/exams/{exam_id}/statistics` - Exam analytics (Teacher)
 
-### 🔐 Authentication
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/api/auth/register` | User registration with email validation | ❌ |
-| `POST` | `/api/auth/login` | JWT token-based login | ❌ |
-| `GET`  | `/api/auth/me` | Get current user profile | ✅ |
+## ⚡ Performance
 
-### 📚 Exam Management
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/api/exams/create` | Create new exam | ✅ Teacher |
-| `GET`  | `/api/exams` | List available exams | ✅ |
-| `GET`  | `/api/exams/{exam_id}` | Get exam details | ✅ |
-| `PUT`  | `/api/exams/{exam_id}` | Update exam | ✅ Teacher |
-| `DELETE` | `/api/exams/{exam_id}` | Delete exam (soft delete) | ✅ Teacher |
-| `GET`  | `/api/exams/{exam_id}/statistics` | Exam statistics | ✅ Teacher |
-
-### 📄 OMR Processing
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `POST` | `/api/omr/upload` | Upload and process OMR sheet | ✅ Student |
-| `GET`  | `/api/omr/check-submission/{exam_id}` | Check existing submission | ✅ Student |
-| `DELETE` | `/api/omr/submission/{exam_id}` | Delete student's submission | ✅ Student |
-
-### 📊 Results
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `GET`  | `/api/results/{exam_id}/{roll_number}` | Get student result | ✅ |
-
-### 📊 Dashboards
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| `GET`  | `/api/teacher/dashboard` | Teacher dashboard summary | ✅ Teacher |
-| `GET`  | `/api/student/dashboard` | Student dashboard summary | ✅ Student |
-
-### 📚 Interactive Documentation
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-
-## ⚡ Performance & Optimization
-
-### 🚀 Recent Optimizations
-- **📦 Reduced Dependencies:** 
-  - Frontend: 22 → 9 packages (59% reduction)
-  - Backend: 19 → 16 packages (16% reduction)
-- **⚡ Build Performance:** 25s → 15s (40% faster builds)
-- **🧹 Clean Architecture:** Removed unused code and test dependencies
-- **🎨 Optimized CSS:** Clean Tailwind configuration without dark mode
-- **💾 Smaller Bundle:** Leaner virtual environment and node_modules
-
-### 📊 Key Performance Metrics
 - **OMR Processing:** < 30 seconds per image
+- **API Response:** < 200ms average
 - **Frontend Build:** ~15 seconds
-- **API Response Time:** < 200ms average
-- **Database Queries:** Optimized with proper indexing
+- **Dependencies:** Optimized (9 frontend, 16 backend packages)
 
-## 🧠 Advanced OMR Processing
-
-### 🎯 Core Features
-- **🔍 Smart Bubble Detection:** Advanced contour analysis for accurate mark recognition
-- **📐 Auto Skew Correction:** Handles tilted or rotated images automatically
-- **🧹 Noise Reduction:** Removes artifacts and improves image quality
-- **📱 Multi-format Support:** JPG, PNG, PDF with automatic format detection
-- **🎨 Template-free:** Works without predefined templates
-- **📊 Confidence Scoring:** Quality metrics for each detected mark
-
-### 🔬 Processing Pipeline
-1. **Image Preprocessing:** Grayscale conversion, noise reduction
-2. **Geometric Correction:** Skew detection and correction
-3. **Contour Detection:** Identify bubble candidates
-4. **Mark Classification:** Determine filled vs empty bubbles
-5. **Answer Extraction:** Map detected marks to question numbers
-6. **Quality Assessment:** Generate confidence scores
-
-### 🎛️ Processing Parameters
-- **Bubble Size Range:** Auto-adaptive to different OMR formats
-- **Fill Threshold:** Configurable sensitivity for mark detection
-- **Error Recovery:** Handles partial marks and unclear images
-- **Multi-page Support:** Process multiple pages from PDF files
+### OMR Engine Features
+- ✅ Smart bubble detection with contour analysis
+- ✅ Auto skew correction for tilted images
+- ✅ Noise reduction & quality enhancement
+- ✅ Template-free processing
+- ✅ Multi-page PDF support
+- ✅ Confidence scoring for accuracy
 
 ## 🚀 Deployment
 
-### 🐳 Docker Deployment (Recommended)
+### Docker (Recommended)
 ```bash
-# Build backend image using the provided Dockerfile
-docker build -t omr-backend -f backend/Dockerfile .
-
-# Run backend container (exposes FastAPI on port 8000)
-docker run --name omr-backend -e PORT=8000 -p 8000:8000 omr-backend
-```
-
-> 📘 For end-to-end deployment options (including MySQL configuration and cloud setup), see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
-
-### 🧩 Docker Compose (MySQL + phpMyAdmin + Backend)
-
-The repository includes a `docker-compose.yml` to run MySQL, phpMyAdmin, and the backend together.
-
-```bash
-# Start all services in the background
+# Using Docker Compose (MySQL + Backend + phpMyAdmin)
 docker compose up -d --build
 
-# View logs
-docker compose logs -f
-
-# Stop services
-docker compose down
+# Access services
+# Backend: http://localhost:8000
+# phpMyAdmin: http://localhost:8080
 ```
 
-Services and URLs:
-- **Backend (FastAPI):** `http://localhost:8000`
-- **phpMyAdmin:** `http://localhost:8080`
-- **MySQL:** Host `db`, Port `3306`
-
-Default MySQL credentials (from `docker-compose.yml`):
-- **Database:** `omr_evaluator`
-- **User:** `omr_user` / `omr_password`
-- **Root password:** `root_password`
-
-> ℹ️ The backend is configured via `DATABASE_URL=mysql+pymysql://omr_user:omr_password@db:3306/omr_evaluator` inside the compose network.
-
-### 🌐 Manual Deployment
-
-#### Frontend (Static Hosting)
+### Manual Deployment
 ```bash
-cd frontend
-npm run build
-# Deploy 'dist' folder to your static hosting (Netlify, Vercel, etc.)
-```
+# Frontend (Vercel/Netlify)
+cd frontend && npm run build
+# Deploy 'dist' folder
 
-#### Backend (Cloud Server)
-```bash
+# Backend (Railway/Render)
 cd backend
-# Install dependencies
 pip install -r requirements.txt
-# Run with production ASGI server
 gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
+> See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed instructions.
+
 ## 🤝 Contributing
 
-### 🔧 Development Setup
-1. **Fork** the repository on GitHub
-2. **Clone** your fork locally
-3. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-4. **Make** your changes with proper commit messages
-5. **Test** thoroughly (add tests if needed)
-6. **Push** to your branch: `git push origin feature/amazing-feature`
-7. **Submit** a pull request with detailed description
-
-### 📝 Code Standards
-- **Python:** Follow PEP 8, use type hints
-- **JavaScript:** Use ES6+, consistent formatting
-- **CSS:** Follow Tailwind conventions
-- **Git:** Conventional commit messages
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 🔧 Troubleshooting
 
-### Common Issues
-
-#### ❌ "Module not found" errors
-```bash
-# Ensure virtual environment is activated
-cd backend
-venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-#### ❌ Frontend build failures
-```bash
-# Clear cache and reinstall
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-#### ❌ OMR processing errors
-- Ensure image is **well-lit** and **high quality**
-- Check that bubbles are **completely filled**
-- Verify **file size** is under 10MB
-- Try **different image format** (JPG vs PNG)
-
-#### ❌ Database connection issues
-```bash
-# For SQLite (development only)
-cd backend
-rm omr_evaluator.db
-python -c "from database import init_db; init_db()"
-
-# For MySQL connection issues:
-# 1. Check if MySQL service is running
-# 2. Verify DATABASE_URL in .env file
-# 3. Test connection: mysql -u omr_user -pomr_password -h localhost
-# 4. Recreate database if needed (see MYSQL_MIGRATION_GUIDE.md)
-```
+| Issue | Solution |
+|-------|----------|
+| Module not found | Activate venv: `venv\Scripts\activate` then `pip install -r requirements.txt` |
+| Build failures | Clear cache: `rm -rf node_modules && npm install` |
+| OMR errors | Ensure well-lit, high-quality images with complete bubble fills |
+| DB connection | Check MySQL service, verify `DATABASE_URL` in `.env` |
 
 ## ⚙️ Environment Variables
 
-### Backend (`backend/.env`)
+**Backend** (`backend/.env`):
 ```env
-# Database
-DATABASE_URL=mysql+pymysql://omr_user:omr_password@localhost:3306/omr_evaluator
-# Alternative for local testing
-# DATABASE_URL=sqlite:///./omr_evaluator.db
-
-# Auth
-SECRET_KEY=your-super-secret-key-change-in-production
-JWT_ALGORITHM=HS256
+DATABASE_URL=mysql+pymysql://user:pass@localhost:3306/omr_evaluator
+SECRET_KEY=your-secret-key-here
 JWT_EXPIRE_MINUTES=30
-
-# OMR
 ALLOW_RESUBMISSION=true
-REQUIRE_TEACHER_APPROVAL=false
-
-# CORS (comma-separated)
-# Example after deploying frontend to Vercel
-CORS_ORIGINS=https://your-app.vercel.app
 ```
 
-### Frontend (`frontend/.env`)
+**Frontend** (`frontend/.env`):
 ```env
-# Point to your backend base URL (without trailing /api)
 VITE_API_URL=http://localhost:8000
 ```
 
-Notes:
-- Frontend automatically talks to `${VITE_API_URL}/api`.
-- In development, Vite also proxies `/api` to `http://localhost:8000` per `frontend/vite.config.js`.
-
-### 📧 Support
-- **Issues:** Report bugs via GitHub Issues
-- **Discussions:** Join GitHub Discussions for questions
-- **Email:** Contact maintainers for urgent issues
-
 ## 📄 License
 
-**MIT License** - see [LICENSE](LICENSE) file for details.
-
-### 📊 Project Stats
-- **Languages:** Python, JavaScript, CSS
-- **Total Lines:** ~8,000+ LOC
-- **Components:** 15+ React components
-- **API Endpoints:** 12+ REST endpoints
-- **Dependencies:** 25 total (optimized)
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-⭐ **Star this repo** if you found it helpful! ⭐
+<div align="center">
+
+**Built with ❤️ by the SCANALYZE Team**
+
+⭐ Star this repo if you found it helpful!
+
+[Report Bug](https://github.com/OmkarJayvantJadhav/omr-evaluator/issues) • [Request Feature](https://github.com/OmkarJayvantJadhav/omr-evaluator/issues) • [Documentation](https://omr-evaluator-production.up.railway.app/docs)
+
+</div>
