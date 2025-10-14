@@ -2,12 +2,6 @@
 
 An intelligent **Optical Mark Recognition (OMR) and Result Processing System** for automated exam evaluation with modern web technologies.
 
-![License](https://img.shields.io/badge/License-MIT-green)
-![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
-![Frontend](https://img.shields.io/badge/Frontend-React%2018-61DAFB)
-![Build](https://img.shields.io/badge/Build-Vite%204-646CFF)
-![Database](https://img.shields.io/badge/Database-MySQL%208.0-4479A1)
-![Container](https://img.shields.io/badge/Container-Docker-2496ED)
 
 ## 🌐 Live Demo - FULLY OPERATIONAL
 
@@ -20,7 +14,7 @@ An intelligent **Optical Mark Recognition (OMR) and Result Processing System** f
 - **📚 API Documentation**: [https://omr-evaluator-production.up.railway.app/docs](https://omr-evaluator-production.up.railway.app/docs)
 - **🔍 Health Check**: [https://omr-evaluator-production.up.railway.app/health](https://omr-evaluator-production.up.railway.app/health)
 
-> ✅ **Status**: All URLs verified working | Last tested: October 13, 2025 10:44 UTC
+
 
 ## 🎯 Project Overview
 
