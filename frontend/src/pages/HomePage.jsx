@@ -242,7 +242,7 @@ export default function HomePage() {
 
       <section
         ref={heroRef}
-        className="mx-auto max-w-7xl px-4 pt-16 sm:pt-20 pb-16 sm:pb-24 lg:pb-28 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [ &.in-view ]:opacity-100 [ &.in-view ]:translate-y-0"
+        className="mx-auto max-w-7xl px-4 pt-16 sm:pt-20 pb-16 sm:pb-24 lg:pb-28 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0"
       >
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
@@ -290,7 +290,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="how-it-works" ref={stepsRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [ &.in-view ]:opacity-100 [ &.in-view ]:translate-y-0">
+      <section id="how-it-works" ref={stepsRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
         <h2 className="text-3xl font-bold">How it works</h2>
         <p className="mt-3 max-w-2xl text-slate-600 dark:text-slate-300">
           Get from scan to insights in minutes — reliable, accurate, export-ready.
@@ -327,7 +327,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="features" ref={featuresRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [ &.in-view ]:opacity-100 [ &.in-view ]:translate-y-0">
+      <section id="features" ref={featuresRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
         <h2 className="text-3xl font-bold">Why SCANALYZE</h2>
         <p className="mt-3 max-w-2xl text-slate-600 dark:text-slate-300">
           Built for accuracy, speed, and peace of mind — at scale.
@@ -369,7 +369,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="demo" ref={carouselRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [ &.in-view ]:opacity-100 [ &.in-view ]:translate-y-0">
+      <section id="demo" ref={carouselRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold">See it in action</h2>
