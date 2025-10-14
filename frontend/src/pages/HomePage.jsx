@@ -344,7 +344,7 @@ export default function HomePage() {
                 key={src}
                 src={src}
                 alt={`Demo slide ${i + 1}`}
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-700 bg-slate-100 dark:bg-slate-800 ${i === currentSlide ? 'opacity-100' : 'opacity-0'}`}
                 loading="lazy"
               />
             ))}
