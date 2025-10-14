@@ -17,7 +17,7 @@ import {
 import { Card, CardContent } from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import HomeLandingHeader from '../components/HomeLandingHeader';
+ 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -86,9 +86,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <HomeLandingHeader />
-      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 -left-4 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
