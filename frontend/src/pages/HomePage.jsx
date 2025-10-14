@@ -330,25 +330,35 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="relative">
-            <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-gradient-to-tr from-blue-600/10 to-cyan-400/10 blur-2xl" aria-hidden="true" />
-            {/* Keep aspect ratio to reserve space and avoid CLS */}
-            <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 shadow-lg dark:border-slate-800 aspect-[16/10]">
-              <img
-                src="https://images.unsplash.com/photo-1523246196481-cd2c5bc5d8f4?q=80&w=1600&auto=format&fit=crop"
-                alt="SCANALYZE dashboard mockup"
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="lazy"
-                decoding="async"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.dataset.fallback) return; // prevent loop
-                  target.dataset.fallback = '1';
-                  // Fallback to a reliable placeholder
-                  target.src = 'https://placehold.co/1600x1000/png?text=SCANALYZE+Dashboard+Mockup';
-                }}
-              />
+          {/* Replaced mockup with premium highlights */}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="card p-6 card-hover">
+              <h3 className="text-lg font-semibold">Precision OMR</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Accurate bubble detection with noise and skew handling.</p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Confidence scoring
+              </div>
+            </div>
+            <div className="card p-6 card-hover">
+              <h3 className="text-lg font-semibold">Instant Insights</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Question-wise analytics, pass rates, and exports.</p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> CSV/PDF reports
+              </div>
+            </div>
+            <div className="card p-6 card-hover">
+              <h3 className="text-lg font-semibold">Secure by Design</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Role-based access with hardened CORS and auditability.</p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Teacher/Student flows
+              </div>
+            </div>
+            <div className="card p-6 card-hover">
+              <h3 className="text-lg font-semibold">Cloud Ready</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Vercel + Railway deployment with MySQL/SQLite support.</p>
+              <div className="mt-4 flex items-center gap-2 text-sm text-blue-700 dark:text-blue-400">
+                <span className="inline-block h-2 w-2 rounded-full bg-blue-600" /> Auto scale & logs
+              </div>
             </div>
           </div>
         </div>
