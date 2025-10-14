@@ -185,11 +185,35 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50 text-slate-900 dark:from-slate-900 dark:to-slate-950 dark:text-slate-100 selection:bg-blue-200/60 dark:selection:bg-blue-800/60">
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <canvas
-          ref={particlesRef}
-          aria-hidden="true"
-          className="h-full w-full transition-transform duration-300 will-change-transform"
-        />
+        {/* Prefer LiquidEther as background if available; else fall back to particles canvas */}
+        {LiquidEtherComp ? (
+          <div className="absolute inset-0">
+            <LiquidEtherComp
+              colors={[ '#5227FF', '#FF9FFC', '#B19EEF' ]}
+              mouseForce={16}
+              cursorSize={90}
+              isViscous={false}
+              viscous={30}
+              iterationsViscous={32}
+              iterationsPoisson={32}
+              resolution={0.5}
+              isBounce={false}
+              autoDemo={true}
+              autoSpeed={0.45}
+              autoIntensity={2.0}
+              takeoverDuration={0.25}
+              autoResumeDelay={3000}
+              autoRampDuration={0.6}
+              className="pointer-events-none"
+            />
+          </div>
+        ) : (
+          <canvas
+            ref={particlesRef}
+            aria-hidden="true"
+            className="h-full w-full transition-transform duration-300 will-change-transform"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-cyan-50/30 dark:from-blue-900/20 dark:to-cyan-900/10" aria-hidden="true" />
       </div>
 
@@ -365,34 +389,7 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Liquid Ether premium background section (three.js) */}
-      {LiquidEtherComp && (
-        <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/60 p-3 shadow-premium backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/40">
-            <div className="relative w-full overflow-hidden rounded-xl border border-slate-200 bg-white/40 shadow-inner dark:border-slate-800 dark:bg-slate-900/30">
-              <div className="relative h-[360px] sm:h-[480px] lg:h-[560px]">
-                <LiquidEtherComp
-                  colors={[ '#5227FF', '#FF9FFC', '#B19EEF' ]}
-                  mouseForce={20}
-                  cursorSize={100}
-                  isViscous={false}
-                  viscous={30}
-                  iterationsViscous={32}
-                  iterationsPoisson={32}
-                  resolution={0.5}
-                  isBounce={false}
-                  autoDemo={true}
-                  autoSpeed={0.5}
-                  autoIntensity={2.2}
-                  takeoverDuration={0.25}
-                  autoResumeDelay={3000}
-                  autoRampDuration={0.6}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Liquid Ether foreground demo removed since it's now the background */}
 
       <section id="how-it-works" ref={stepsRef} className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 opacity-0 translate-y-6 transition-all duration-700 [&.in-view]:opacity-100 [&.in-view]:translate-y-0">
         <h2 className="text-3xl font-bold">How it works</h2>
