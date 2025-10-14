@@ -9,11 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.45  # Optimized for filled bubbles
-        self.bubble_min_area = 30  # Smaller for tight layouts
-        self.bubble_max_area = 3000  # Wider range for varied resolutions
-        self.aspect_ratio_threshold = 0.5  # Balanced for circular bubbles
-        self.column_gap_threshold = 40  # Adjusted for tight column spacing
+        self.confidence_threshold = 0.3  # Very low to catch all filled bubbles
+        self.bubble_min_area = 20  # Very small minimum
+        self.bubble_max_area = 5000  # Very large maximum
+        self.aspect_ratio_threshold = 0.7  # Very lenient
+        self.column_gap_threshold = 30  # Lower for tight spacing
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -117,11 +117,11 @@ class OMRProcessor:
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
         """
         Preprocess the image for better bubble detection.
-        Enhanced for large sheets with 200+ questions.
+        Simplified for better bubble preservation.
         """
-        # Resize if image is too large (for performance), but keep good resolution
+        # Resize if image is too large (for performance)
         height, width = image.shape[:2]
-        max_dimension = 3500  # Increased for better detail preservation
+        max_dimension = 3000
         
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
@@ -132,23 +132,19 @@ class OMRProcessor:
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Apply bilateral filter to preserve edges while reducing noise
-        denoised = cv2.bilateralFilter(gray, 9, 75, 75)
+        # Simple Gaussian blur
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Apply Gaussian blur
-        blurred = cv2.GaussianBlur(denoised, (3, 3), 0)
-        
-        # Apply adaptive threshold with optimized parameters
-        block_size = 15 if max(height, width) > 2000 else 11
+        # Apply adaptive threshold
+        block_size = 11
         thresh = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, block_size, 3
+            cv2.THRESH_BINARY_INV, block_size, 2
         )
         
-        # Apply morphological operations to clean up and separate touching bubbles
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
-        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_CLOSE, kernel, iterations=1)
+        # Minimal morphological operations
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
         
         return cleaned
     
@@ -169,13 +165,13 @@ class OMRProcessor:
             if area < self.bubble_min_area or area > self.bubble_max_area:
                 continue
             
-            # Check if contour is roughly circular (more lenient)
+            # Very lenient circularity check
             perimeter = cv2.arcLength(contour, True)
             if perimeter == 0:
                 continue
             
             circularity = 4 * np.pi * area / (perimeter * perimeter)
-            if circularity < 0.2:  # More lenient for varied bubble shapes
+            if circularity < 0.15:  # Very lenient
                 continue
             
             # Get bounding rectangle
@@ -183,7 +179,7 @@ class OMRProcessor:
             if h == 0:  # Avoid division by zero
                 continue
             aspect_ratio = float(w) / h
-            if abs(aspect_ratio - 1.0) > 0.6:  # More lenient aspect ratio
+            if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
                 continue
             
             # Calculate fill ratio (how much of the bubble is filled)
@@ -368,7 +364,7 @@ class OMRProcessor:
     def _group_bubbles_by_rows(self, bubbles: List[Dict]) -> List[List[Dict]]:
         """
         Group bubbles into rows based on y-coordinate.
-        Enhanced to handle varied row spacing in large sheets.
+        Simplified for better reliability.
         """
         if not bubbles:
             return []
@@ -376,30 +372,24 @@ class OMRProcessor:
         if len(bubbles) == 1:
             return [[bubbles[0]]]
         
-        # Calculate adaptive row threshold based on bubble density
+        # Simple adaptive threshold
         y_coords = sorted([b['center'][1] for b in bubbles])
         y_diffs = [y_coords[i+1] - y_coords[i] for i in range(len(y_coords)-1) if y_coords[i+1] - y_coords[i] > 0]
         
         if y_diffs:
-            # Use percentile-based approach for better handling of tight spacing
-            small_diffs = [d for d in y_diffs if d < 100]
-            if small_diffs:
-                # Use 75th percentile of small differences
-                row_threshold = np.percentile(small_diffs, 75) * 1.3
-            else:
-                row_threshold = np.median(y_diffs) * 0.8 if y_diffs else 25
+            median_diff = np.median(y_diffs)
+            row_threshold = median_diff * 1.5
         else:
-            row_threshold = 25
+            row_threshold = 30
         
-        # Ensure minimum threshold for very tight layouts
-        row_threshold = max(row_threshold, 15)
+        # Minimum threshold
+        row_threshold = max(row_threshold, 20)
         
         rows = []
         current_row = [bubbles[0]]
         
         for bubble in bubbles[1:]:
-            # Use average y of current row for better grouping
-            current_row_y = np.mean([b['center'][1] for b in current_row])
+            current_row_y = current_row[0]['center'][1]
             bubble_y = bubble['center'][1]
             
             if abs(bubble_y - current_row_y) <= row_threshold:
