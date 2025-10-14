@@ -55,7 +55,8 @@ const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
   const isHome = location.pathname === '/' || location.pathname === '/home';
-  const showNavbar = isAuthenticated && !isHome;
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const showNavbar = (!isHome) && (isAuthenticated || isAuthPage);
 
   if (loading) {
     return <LoadingSpinner />;
