@@ -9,11 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.4
-        self.bubble_min_area = 100
-        self.bubble_max_area = 5000
-        self.aspect_ratio_threshold = 0.6
-        self.circularity_threshold = 0.15
+        self.confidence_threshold = 0.3
+        self.bubble_min_area = 50
+        self.bubble_max_area = 10000
+        self.aspect_ratio_threshold = 0.7
+        self.circularity_threshold = 0.1
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -166,13 +166,24 @@ class OMRProcessor:
         
         # Calculate dynamic area thresholds based on image size
         image_area = image.shape[0] * image.shape[1]
-        dynamic_min_area = max(self.bubble_min_area, image_area * 0.00005)
-        dynamic_max_area = min(self.bubble_max_area, image_area * 0.01)
+        dynamic_min_area = max(self.bubble_min_area, image_area * 0.00003)
+        dynamic_max_area = min(self.bubble_max_area, image_area * 0.02)
+        
+        print(f"Image area: {image_area}")
+        print(f"Dynamic min area: {dynamic_min_area}")
+        print(f"Dynamic max area: {dynamic_max_area}")
+        print(f"Total contours to filter: {len(contours)}")
+        
+        # Debug counters
+        filtered_by_area = 0
+        filtered_by_circularity = 0
+        filtered_by_aspect_ratio = 0
         
         for contour in contours:
             # Calculate contour properties
             area = cv2.contourArea(contour)
             if area < dynamic_min_area or area > dynamic_max_area:
+                filtered_by_area += 1
                 continue
             
             # Check if contour is roughly circular
@@ -182,6 +193,7 @@ class OMRProcessor:
             
             circularity = 4 * np.pi * area / (perimeter * perimeter)
             if circularity < self.circularity_threshold:  # Not circular enough
+                filtered_by_circularity += 1
                 continue
             
             # Get bounding rectangle
@@ -191,6 +203,7 @@ class OMRProcessor:
                 
             aspect_ratio = float(w) / h
             if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
+                filtered_by_aspect_ratio += 1
                 continue
             
             # Calculate fill ratio (how much of the bubble is filled)
@@ -213,6 +226,12 @@ class OMRProcessor:
         
         # Sort bubbles by position (top to bottom, left to right)
         bubbles.sort(key=lambda b: (b['center'][1], b['center'][0]))
+        
+        # Print debug info
+        print(f"Filtered by area: {filtered_by_area}")
+        print(f"Filtered by circularity: {filtered_by_circularity}")
+        print(f"Filtered by aspect ratio: {filtered_by_aspect_ratio}")
+        print(f"Valid bubbles found: {len(bubbles)}")
         
         return bubbles
     
