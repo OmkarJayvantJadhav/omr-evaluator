@@ -9,11 +9,10 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.3  # Very low to catch all filled bubbles
-        self.bubble_min_area = 20  # Very small minimum
-        self.bubble_max_area = 5000  # Very large maximum
-        self.aspect_ratio_threshold = 0.7  # Very lenient
-        self.column_gap_threshold = 30  # Lower for tight spacing
+        self.confidence_threshold = 0.6
+        self.bubble_min_area = 50
+        self.bubble_max_area = 1500
+        self.aspect_ratio_threshold = 0.3
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -115,34 +114,20 @@ class OMRProcessor:
             raise ValueError(f"PDF conversion error: {str(e)}")
     
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
-        """
-        Preprocess the image for better bubble detection.
-        Simplified for better bubble preservation.
-        """
-        # Resize if image is too large (for performance)
-        height, width = image.shape[:2]
-        max_dimension = 3000
-        
-        if max(height, width) > max_dimension:
-            scale = max_dimension / max(height, width)
-            new_width = int(width * scale)
-            new_height = int(height * scale)
-            image = cv2.resize(image, (new_width, new_height), interpolation=cv2.INTER_AREA)
-        
+        """Preprocess the image for better bubble detection."""
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
-        # Simple Gaussian blur
+        # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
         # Apply adaptive threshold
-        block_size = 11
         thresh = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, block_size, 2
+            cv2.THRESH_BINARY_INV, 11, 2
         )
         
-        # Minimal morphological operations
+        # Apply morphological operations to clean up the image
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
         
@@ -165,19 +150,17 @@ class OMRProcessor:
             if area < self.bubble_min_area or area > self.bubble_max_area:
                 continue
             
-            # Very lenient circularity check
+            # Check if contour is roughly circular
             perimeter = cv2.arcLength(contour, True)
             if perimeter == 0:
                 continue
             
             circularity = 4 * np.pi * area / (perimeter * perimeter)
-            if circularity < 0.15:  # Very lenient
+            if circularity < 0.3:  # Not circular enough
                 continue
             
             # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
-            if h == 0:  # Avoid division by zero
-                continue
             aspect_ratio = float(w) / h
             if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
                 continue
@@ -186,7 +169,7 @@ class OMRProcessor:
             mask = np.zeros(image.shape, dtype=np.uint8)
             cv2.fillPoly(mask, [contour], 255)
             filled_pixels = cv2.countNonZero(cv2.bitwise_and(image, mask))
-            total_pixels = int(area)
+            total_pixels = area
             fill_ratio = filled_pixels / total_pixels if total_pixels > 0 else 0
             
             bubbles.append({
@@ -204,152 +187,31 @@ class OMRProcessor:
         return bubbles
     
     def _extract_answers(self, bubbles: List[Dict], total_questions: int, number_of_choices: int = 4) -> Dict[str, str]:
-        """
-        Extract answers from detected bubbles with automatic column detection.
-        Supports 200+ questions with multi-column layouts.
-        """
+        """Extract answers from detected bubbles."""
         answers = {}
         
         if not bubbles:
             return answers
         
-        # Generate choices based on number_of_choices
+        # Group bubbles by rows (questions)
+        rows = self._group_bubbles_by_rows(bubbles)
+        
+        # Generate choices based on number_of_choices (A, B, C, D for 4, A, B, C, D, E for 5, etc.)
         choices = [chr(ord('A') + i) for i in range(number_of_choices)]
         
-        # Detect columns automatically
-        columns = self._detect_columns(bubbles)
-        
-        if not columns:
-            # Fallback to single column processing
-            rows = self._group_bubbles_by_rows(bubbles)
-            return self._extract_from_rows(rows, total_questions, number_of_choices, choices)
-        
-        # Process each column and merge results
         question_num = 1
-        
-        for column in columns:
-            if question_num > total_questions:
-                break
-                
-            # Group bubbles in this column by rows
-            column_rows = self._group_bubbles_by_rows(column)
-            
-            # Extract answers from this column
-            for row in column_rows:
-                if question_num > total_questions:
-                    break
-                    
-                if not row:
-                    continue
-                
-                # Sort bubbles in row by x-coordinate (left to right)
-                row.sort(key=lambda b: b['center'][0])
-                
-                # Find the most filled bubble in this row
-                max_fill_ratio = 0
-                selected_choice = None
-                
-                for i, bubble in enumerate(row[:number_of_choices]):
-                    if bubble['fill_ratio'] > max_fill_ratio and bubble['fill_ratio'] > self.confidence_threshold:
-                        max_fill_ratio = bubble['fill_ratio']
-                        selected_choice = choices[i] if i < len(choices) else None
-                
-                if selected_choice:
-                    answers[str(question_num)] = selected_choice
-                
-                question_num += 1
-        
-        return answers
-    
-    def _detect_columns(self, bubbles: List[Dict]) -> List[List[Dict]]:
-        """
-        Automatically detect columns in the OMR sheet.
-        Works for any number of columns (1 to N).
-        Enhanced to better handle 150+ question sheets.
-        """
-        if not bubbles:
-            return []
-        
-        # Extract x-coordinates of all bubble centers
-        x_coords = [b['center'][0] for b in bubbles]
-        
-        if not x_coords:
-            return []
-        
-        # Use clustering approach for better column detection
-        x_sorted = sorted(set(x_coords))  # Remove duplicates
-        
-        if len(x_sorted) < 2:
-            return [bubbles]
-        
-        # Calculate gaps between consecutive x-coordinates
-        gaps = []
-        for i in range(1, len(x_sorted)):
-            gap = x_sorted[i] - x_sorted[i-1]
-            gaps.append((x_sorted[i-1], x_sorted[i], gap))
-        
-        # Calculate statistics for gap detection
-        gap_sizes = [g[2] for g in gaps]
-        median_gap = np.median(gap_sizes)
-        std_gap = np.std(gap_sizes)
-        
-        # A column separator is a gap significantly larger than typical gaps
-        threshold = max(self.column_gap_threshold, median_gap + 2 * std_gap)
-        
-        # Find significant gaps (column separators)
-        significant_gaps = [g for g in gaps if g[2] > threshold]
-        
-        # If no significant gaps, treat as single column
-        if not significant_gaps:
-            return [bubbles]
-        
-        # Sort significant gaps by position
-        significant_gaps.sort(key=lambda g: g[0])
-        
-        # Calculate separator positions (middle of each gap)
-        separator_positions = [g[0] + (g[1] - g[0]) / 2 for g in significant_gaps]
-        
-        # Create column boundaries
-        min_x = min(x_coords)
-        max_x = max(x_coords)
-        boundaries = [min_x - 1] + separator_positions + [max_x + 1]
-        
-        # Group bubbles into columns
-        columns = []
-        for i in range(len(boundaries) - 1):
-            left_bound = boundaries[i]
-            right_bound = boundaries[i + 1]
-            
-            column_bubbles = [
-                b for b in bubbles 
-                if left_bound < b['center'][0] < right_bound
-            ]
-            
-            if column_bubbles:
-                # Sort column bubbles by y-coordinate (top to bottom)
-                column_bubbles.sort(key=lambda b: b['center'][1])
-                columns.append(column_bubbles)
-        
-        return columns
-    
-    def _extract_from_rows(self, rows: List[List[Dict]], total_questions: int, 
-                          number_of_choices: int, choices: List[str]) -> Dict[str, str]:
-        """
-        Fallback method to extract answers from rows (single column).
-        """
-        answers = {}
-        question_num = 1
-        
-        for row in rows[:total_questions]:
+        for row in rows[:total_questions]:  # Limit to expected number of questions
             if not row:
                 continue
             
+            # Sort bubbles in row by x-coordinate (left to right)
             row.sort(key=lambda b: b['center'][0])
             
+            # Find the most filled bubble in this row
             max_fill_ratio = 0
             selected_choice = None
             
-            for i, bubble in enumerate(row[:number_of_choices]):
+            for i, bubble in enumerate(row[:number_of_choices]):  # Limit to configured number of choices
                 if bubble['fill_ratio'] > max_fill_ratio and bubble['fill_ratio'] > self.confidence_threshold:
                     max_fill_ratio = bubble['fill_ratio']
                     selected_choice = choices[i] if i < len(choices) else None
@@ -362,41 +224,23 @@ class OMRProcessor:
         return answers
     
     def _group_bubbles_by_rows(self, bubbles: List[Dict]) -> List[List[Dict]]:
-        """
-        Group bubbles into rows based on y-coordinate.
-        Simplified for better reliability.
-        """
+        """Group bubbles into rows based on y-coordinate."""
         if not bubbles:
             return []
         
-        if len(bubbles) == 1:
-            return [[bubbles[0]]]
-        
-        # Simple adaptive threshold
-        y_coords = sorted([b['center'][1] for b in bubbles])
-        y_diffs = [y_coords[i+1] - y_coords[i] for i in range(len(y_coords)-1) if y_coords[i+1] - y_coords[i] > 0]
-        
-        if y_diffs:
-            median_diff = np.median(y_diffs)
-            row_threshold = median_diff * 1.5
-        else:
-            row_threshold = 30
-        
-        # Minimum threshold
-        row_threshold = max(row_threshold, 20)
-        
         rows = []
         current_row = [bubbles[0]]
+        row_threshold = 30  # pixels
         
         for bubble in bubbles[1:]:
+            # Check if bubble is in the same row as current row
             current_row_y = current_row[0]['center'][1]
             bubble_y = bubble['center'][1]
             
             if abs(bubble_y - current_row_y) <= row_threshold:
                 current_row.append(bubble)
             else:
-                if current_row:
-                    rows.append(current_row)
+                rows.append(current_row)
                 current_row = [bubble]
         
         if current_row:
