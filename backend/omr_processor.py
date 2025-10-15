@@ -116,41 +116,46 @@ class OMRProcessor:
     
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
         """Preprocess the image for better bubble detection."""
+        print(f"Image shape: {image.shape}")
+        
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Method 1: Adaptive threshold
+        # Method 1: Adaptive threshold with larger block size
         thresh1 = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, 21, 10
+            cv2.THRESH_BINARY_INV, 31, 15
         )
         
         # Method 2: Otsu's method for global thresholding
         _, thresh2 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         
-        # Method 3: Simple threshold for dark bubbles (works well for colored bubbles)
-        _, thresh3 = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY_INV)
+        # Method 3: Multiple simple thresholds for dark bubbles
+        _, thresh3 = cv2.threshold(blurred, 180, 255, cv2.THRESH_BINARY_INV)
+        _, thresh4 = cv2.threshold(blurred, 120, 255, cv2.THRESH_BINARY_INV)
         
-        # Method 4: Color-based detection for purple/blue bubbles
+        # Method 5: Color-based detection for purple/blue bubbles (wider range)
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # Purple/Blue color range
-        lower_purple = np.array([100, 50, 50])
-        upper_purple = np.array([160, 255, 255])
+        # Wider purple/blue color range
+        lower_purple = np.array([90, 30, 30])
+        upper_purple = np.array([170, 255, 255])
         color_mask = cv2.inRange(hsv, lower_purple, upper_purple)
         
         # Combine all methods using bitwise OR to catch more bubbles
         thresh = cv2.bitwise_or(thresh1, thresh2)
         thresh = cv2.bitwise_or(thresh, thresh3)
+        thresh = cv2.bitwise_or(thresh, thresh4)
         thresh = cv2.bitwise_or(thresh, color_mask)
         
         # Apply morphological operations to clean up and fill holes
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=3)
         cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
         
+        print(f"Preprocessing complete")
         return cleaned
     
     def _detect_bubbles(self, processed_image: np.ndarray) -> List:
