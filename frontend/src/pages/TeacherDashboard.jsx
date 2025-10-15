@@ -27,6 +27,7 @@ const TeacherDashboard = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [rollNumberFilter, setRollNumberFilter] = useState('');
+  const [selectedRollNumber, setSelectedRollNumber] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -273,7 +274,7 @@ const TeacherDashboard = () => {
           </CardContent>
         </Card>
 
-      {/* Student Results - Search by Roll Number */}
+      {/* Student Results - Click Roll Number to View */}
       {dashboardData?.recent_results && dashboardData.recent_results.length > 0 && (
           <Card className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
             <CardHeader>
@@ -281,133 +282,179 @@ const TeacherDashboard = () => {
                 <ChartBarIcon className="h-6 w-6 text-primary-500" />
                 <span>Student Results</span>
               </CardTitle>
-              <CardDescription>Search and view student performance by roll number</CardDescription>
+              <CardDescription>
+                {selectedRollNumber ? `Showing results for Roll: ${selectedRollNumber}` : 'Click on a roll number to view student results'}
+              </CardDescription>
             </CardHeader>
             
             <CardContent>
-              {/* Search Filter */}
-              <div className="mb-6">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+              {!selectedRollNumber ? (
+                // Roll Numbers List View
+                <>
+                  {/* Search Filter */}
+                  <div className="mb-6">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Search roll numbers..."
+                        value={rollNumberFilter}
+                        onChange={(e) => setRollNumberFilter(e.target.value)}
+                        className="w-full pl-10 pr-10 py-3 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 transition-all duration-200"
+                      />
+                      {rollNumberFilter && (
+                        <button
+                          onClick={() => setRollNumberFilter('')}
+                          className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-600 transition-colors"
+                        >
+                          <XMarkIcon className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Search by roll number..."
-                    value={rollNumberFilter}
-                    onChange={(e) => setRollNumberFilter(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 transition-all duration-200"
-                  />
-                  {rollNumberFilter && (
-                    <button
-                      onClick={() => setRollNumberFilter('')}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-600 transition-colors"
-                    >
-                      <XMarkIcon className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-                {rollNumberFilter && (
-                  <p className="mt-2 text-sm text-neutral-500">
+
+                  {/* Roll Numbers Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {(() => {
-                      const filtered = dashboardData.recent_results.filter(result => 
-                        result.roll_number?.toString().toLowerCase().includes(rollNumberFilter.toLowerCase())
-                      );
-                      return filtered.length > 0 
-                        ? `Found ${filtered.length} result${filtered.length > 1 ? 's' : ''} for "${rollNumberFilter}"`
-                        : `No results found for "${rollNumberFilter}"`;
+                      // Get unique roll numbers
+                      const uniqueRollNumbers = [...new Set(
+                        dashboardData.recent_results.map(result => result.roll_number)
+                      )].sort();
+
+                      // Filter based on search
+                      const filteredRollNumbers = rollNumberFilter
+                        ? uniqueRollNumbers.filter(roll => 
+                            roll?.toString().toLowerCase().includes(rollNumberFilter.toLowerCase())
+                          )
+                        : uniqueRollNumbers;
+
+                      if (filteredRollNumbers.length === 0) {
+                        return (
+                          <div className="col-span-full text-center py-12">
+                            <UserGroupIcon className="h-12 w-12 text-neutral-300 mx-auto mb-3" />
+                            <p className="text-neutral-500 font-medium">No roll numbers found</p>
+                            <p className="text-sm text-neutral-400 mt-1">
+                              {rollNumberFilter ? 'Try a different search term' : 'No student submissions yet'}
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return filteredRollNumbers.map((rollNumber) => {
+                        // Count results for this roll number
+                        const resultCount = dashboardData.recent_results.filter(
+                          r => r.roll_number === rollNumber
+                        ).length;
+
+                        return (
+                          <button
+                            key={rollNumber}
+                            onClick={() => setSelectedRollNumber(rollNumber)}
+                            className="p-4 bg-white border-2 border-neutral-200 rounded-xl hover:border-primary-400 hover:bg-primary-50 transition-all duration-200 hover:shadow-md group"
+                          >
+                            <div className="flex flex-col items-center">
+                              <div className="p-2 rounded-lg bg-gradient-to-br from-primary-50 to-primary-100 group-hover:from-primary-100 group-hover:to-primary-200 mb-2">
+                                <UserGroupIcon className="h-6 w-6 text-primary-600" />
+                              </div>
+                              <p className="font-bold text-lg text-neutral-900 group-hover:text-primary-600">
+                                {rollNumber}
+                              </p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                {resultCount} result{resultCount > 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      });
                     })()}
-                  </p>
-                )}
-              </div>
-
-              {/* Results List */}
-              <div className="space-y-4">
-                {(() => {
-                  const filteredResults = rollNumberFilter
-                    ? dashboardData.recent_results.filter(result => 
-                        result.roll_number?.toString().toLowerCase().includes(rollNumberFilter.toLowerCase())
-                      )
-                    : dashboardData.recent_results.slice(0, 10);
-
-                  if (filteredResults.length === 0) {
-                    return (
-                      <div className="text-center py-12">
-                        <UserGroupIcon className="h-12 w-12 text-neutral-300 mx-auto mb-3" />
-                        <p className="text-neutral-500 font-medium">No results found</p>
-                        <p className="text-sm text-neutral-400 mt-1">
-                          {rollNumberFilter ? 'Try a different roll number' : 'No student submissions yet'}
-                        </p>
-                      </div>
-                    );
-                  }
-
-                  return filteredResults.map((result, index) => (
-                    <Card 
-                      key={result.id} 
-                      variant="plain" 
-                      className="p-4 hover:shadow-md transition-shadow duration-200"
+                  </div>
+                </>
+              ) : (
+                // Individual Student Results View
+                <>
+                  {/* Back Button */}
+                  <div className="mb-6">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setSelectedRollNumber(null)}
+                      className="inline-flex items-center gap-2"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4 flex-1">
-                          <div className="p-3 rounded-xl bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200">
-                            <UserGroupIcon className="h-6 w-6 text-accent-600" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-bold text-lg text-neutral-900">
-                                Roll: {result.roll_number}
-                              </p>
-                              <span className={`badge text-xs ${
-                                result.percentage >= 90 ? 'bg-success-100 text-success-700' :
-                                result.percentage >= 75 ? 'bg-primary-100 text-primary-700' :
-                                result.percentage >= 50 ? 'bg-warning-100 text-warning-700' :
-                                'bg-error-100 text-error-700'
-                              }`}>
-                                {result.percentage >= 90 ? '🏆 Excellent' :
-                                 result.percentage >= 75 ? '🚀 Good' :
-                                 result.percentage >= 40 ? '✅ Pass' : '❌ Fail'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4 text-sm">
-                              <p className="text-neutral-600 font-medium">
-                                Score: <span className="text-primary-600 font-bold">{result.score}/{result.exam?.max_marks}</span>
-                              </p>
-                              <p className="text-neutral-600 font-medium">
-                                Percentage: <span className="text-primary-600 font-bold">{result.percentage.toFixed(1)}%</span>
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
-                              <p className="flex items-center gap-1">
-                                <BookOpenIcon className="h-3.5 w-3.5" />
-                                {result.exam?.title || 'N/A'}
-                              </p>
-                              <p className="flex items-center gap-1">
-                                <ClockIcon className="h-3.5 w-3.5" />
-                                {new Date(result.created_at).toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: 'short', 
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ));
-                })()}
-              </div>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      Back to Roll Numbers
+                    </Button>
+                  </div>
 
-              {/* Show More Info */}
-              {!rollNumberFilter && dashboardData.recent_results.length > 10 && (
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-neutral-500">
-                    Showing 10 of {dashboardData.recent_results.length} results. Use search to find specific students.
-                  </p>
-                </div>
+                  {/* Student Results */}
+                  <div className="space-y-4">
+                    {dashboardData.recent_results
+                      .filter(result => result.roll_number === selectedRollNumber)
+                      .map((result, index) => (
+                        <Card 
+                          key={result.id} 
+                          variant="plain" 
+                          className="p-5 hover:shadow-md transition-shadow duration-200"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-4 flex-1">
+                              <div className="p-3 rounded-xl bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200">
+                                <DocumentTextIcon className="h-7 w-7 text-accent-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <h3 className="font-bold text-xl text-neutral-900">
+                                    {result.exam?.title || 'Exam'}
+                                  </h3>
+                                  <span className={`badge ${
+                                    result.percentage >= 90 ? 'bg-success-100 text-success-700' :
+                                    result.percentage >= 75 ? 'bg-primary-100 text-primary-700' :
+                                    result.percentage >= 50 ? 'bg-warning-100 text-warning-700' :
+                                    'bg-error-100 text-error-700'
+                                  }`}>
+                                    {result.percentage >= 90 ? '🏆 Excellent' :
+                                     result.percentage >= 75 ? '🚀 Good' :
+                                     result.percentage >= 40 ? '✅ Pass' : '❌ Fail'}
+                                  </span>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4 mb-3">
+                                  <div className="bg-primary-50 rounded-lg p-3 border border-primary-100">
+                                    <p className="text-xs text-neutral-600 mb-1">Score</p>
+                                    <p className="text-2xl font-bold text-primary-600">
+                                      {result.score}<span className="text-lg text-neutral-400">/{result.exam?.max_marks}</span>
+                                    </p>
+                                  </div>
+                                  <div className="bg-secondary-50 rounded-lg p-3 border border-secondary-100">
+                                    <p className="text-xs text-neutral-600 mb-1">Percentage</p>
+                                    <p className="text-2xl font-bold text-secondary-600">
+                                      {result.percentage.toFixed(1)}%
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 text-sm text-neutral-500">
+                                  <p className="flex items-center gap-1.5">
+                                    <ClockIcon className="h-4 w-4" />
+                                    {new Date(result.created_at).toLocaleDateString('en-US', { 
+                                      year: 'numeric', 
+                                      month: 'long', 
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
