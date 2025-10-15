@@ -12,7 +12,8 @@ import {
   SparklesIcon,
   UserGroupIcon,
   AcademicCapIcon,
-  HashtagIcon
+  HashtagIcon,
+  HomeIcon
 } from '@heroicons/react/24/outline';
 import { Card, CardContent } from '../components/ui/Card';
 import Input from '../components/ui/Input';
@@ -95,6 +96,17 @@ const Register = () => {
       </div>
 
       <div className="max-w-md w-full space-y-8 animate-fade-in-up">
+        {/* Return to Homepage Button */}
+        <div className="flex justify-center">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 bg-white/50 hover:bg-white/80 backdrop-blur-sm rounded-lg border border-neutral-200 hover:border-primary-300 transition-all duration-200 shadow-sm hover:shadow-md"
+          >
+            <HomeIcon className="h-4 w-4" />
+            Return to Homepage
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 animate-glow mb-6">
