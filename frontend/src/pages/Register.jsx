@@ -100,9 +100,9 @@ const Register = () => {
         <div className="flex justify-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 bg-white/50 hover:bg-white/80 backdrop-blur-sm rounded-lg border border-neutral-200 hover:border-primary-300 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-neutral-700 hover:text-primary-600 bg-white hover:bg-primary-50 backdrop-blur-sm rounded-lg border-2 border-neutral-300 hover:border-primary-400 transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            <HomeIcon className="h-4 w-4" />
+            <HomeIcon className="h-5 w-5" />
             Return to Homepage
           </Link>
         </div>
