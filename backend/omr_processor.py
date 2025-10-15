@@ -9,11 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.5
+        self.confidence_threshold = 0.4
         self.bubble_min_area = 100
         self.bubble_max_area = 5000
-        self.aspect_ratio_threshold = 0.5
-        self.circularity_threshold = 0.2
+        self.aspect_ratio_threshold = 0.6
+        self.circularity_threshold = 0.15
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -122,22 +122,33 @@ class OMRProcessor:
         # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Use Otsu's thresholding for better handling of colored bubbles
-        # First try adaptive threshold
+        # Method 1: Adaptive threshold
         thresh1 = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
             cv2.THRESH_BINARY_INV, 21, 10
         )
         
-        # Also try Otsu's method for global thresholding
+        # Method 2: Otsu's method for global thresholding
         _, thresh2 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
         
-        # Combine both methods using bitwise OR to catch more bubbles
+        # Method 3: Simple threshold for dark bubbles (works well for colored bubbles)
+        _, thresh3 = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY_INV)
+        
+        # Method 4: Color-based detection for purple/blue bubbles
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        # Purple/Blue color range
+        lower_purple = np.array([100, 50, 50])
+        upper_purple = np.array([160, 255, 255])
+        color_mask = cv2.inRange(hsv, lower_purple, upper_purple)
+        
+        # Combine all methods using bitwise OR to catch more bubbles
         thresh = cv2.bitwise_or(thresh1, thresh2)
+        thresh = cv2.bitwise_or(thresh, thresh3)
+        thresh = cv2.bitwise_or(thresh, color_mask)
         
         # Apply morphological operations to clean up and fill holes
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
         cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
         
         return cleaned
