@@ -211,11 +211,15 @@ const UploadOMR = () => {
       
     } catch (error) {
       console.error('Failed to upload OMR:', error);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      
       let errorMessage = 'Failed to process OMR sheet';
       
       if (error.response) {
         // Server responded with an error
         errorMessage = error.response.data?.detail || error.response.data?.message || errorMessage;
+        console.log('Extracted error message:', errorMessage);
       } else if (error.request) {
         // Request was made but no response received
         errorMessage = 'No response from server. Please check your connection.';
