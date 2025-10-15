@@ -122,37 +122,19 @@ class OMRProcessor:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Apply Gaussian blur to reduce noise
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        blurred = cv2.GaussianBlur(gray, (3, 3), 0)
         
-        # Method 1: Adaptive threshold with larger block size
-        thresh1 = cv2.adaptiveThreshold(
-            blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, 31, 15
-        )
-        
-        # Method 2: Otsu's method for global thresholding
-        _, thresh2 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        
-        # Method 3: Multiple simple thresholds for dark bubbles
-        _, thresh3 = cv2.threshold(blurred, 180, 255, cv2.THRESH_BINARY_INV)
-        _, thresh4 = cv2.threshold(blurred, 120, 255, cv2.THRESH_BINARY_INV)
-        
-        # Method 5: Color-based detection for purple/blue bubbles (wider range)
+        # Use ONLY color-based detection for purple/blue bubbles
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # Wider purple/blue color range
-        lower_purple = np.array([90, 30, 30])
-        upper_purple = np.array([170, 255, 255])
+        # Purple/blue color range - more specific
+        lower_purple = np.array([110, 80, 80])
+        upper_purple = np.array([150, 255, 255])
         color_mask = cv2.inRange(hsv, lower_purple, upper_purple)
         
-        # Combine all methods using bitwise OR to catch more bubbles
-        thresh = cv2.bitwise_or(thresh1, thresh2)
-        thresh = cv2.bitwise_or(thresh, thresh3)
-        thresh = cv2.bitwise_or(thresh, thresh4)
-        thresh = cv2.bitwise_or(thresh, color_mask)
-        
-        # Apply morphological operations to clean up and fill holes
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=3)
+        # Apply morphological operations to separate bubbles
+        # Use smaller kernel to avoid merging bubbles
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        cleaned = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel, iterations=1)
         cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
         
         print(f"Preprocessing complete")
@@ -170,14 +152,23 @@ class OMRProcessor:
         bubbles = []
         
         print(f"Total contours found: {len(contours)}")
-        print("ACCEPTING ALL CONTOURS - NO FILTERING")
+        
+        # Calculate reasonable area range based on image size
+        image_area = image.shape[0] * image.shape[1]
+        min_area = 30  # Minimum bubble size
+        max_area = image_area * 0.05  # Max 5% of image
+        
+        print(f"Area filter: {min_area} to {max_area:.0f}")
+        
+        filtered_count = 0
         
         for contour in contours:
             # Calculate contour properties
             area = cv2.contourArea(contour)
             
-            # Skip only if area is 0
-            if area == 0:
+            # Filter by area to remove noise and huge blobs
+            if area < min_area or area > max_area:
+                filtered_count += 1
                 continue
             
             # Get bounding rectangle
@@ -212,6 +203,7 @@ class OMRProcessor:
         # Sort bubbles by position (top to bottom, left to right)
         bubbles.sort(key=lambda b: (b['center'][1], b['center'][0]))
         
+        print(f"Filtered out: {filtered_count}")
         print(f"Total bubbles accepted: {len(bubbles)}")
         
         return bubbles
