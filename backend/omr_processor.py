@@ -124,18 +124,26 @@ class OMRProcessor:
         # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (3, 3), 0)
         
-        # Use ONLY color-based detection for purple/blue bubbles
+        # Method 1: Detect filled purple/blue bubbles
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # Purple/blue color range - more specific
         lower_purple = np.array([110, 80, 80])
         upper_purple = np.array([150, 255, 255])
-        color_mask = cv2.inRange(hsv, lower_purple, upper_purple)
+        filled_mask = cv2.inRange(hsv, lower_purple, upper_purple)
         
-        # Apply morphological operations to separate bubbles
-        # Use smaller kernel to avoid merging bubbles
+        # Method 2: Detect outlined bubbles using edge detection
+        # Use Canny to find edges
+        edges = cv2.Canny(blurred, 50, 150)
+        
+        # Dilate edges to make them thicker
+        kernel_edge = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+        edges_dilated = cv2.dilate(edges, kernel_edge, iterations=1)
+        
+        # Combine filled bubbles and outlined bubbles
+        combined = cv2.bitwise_or(filled_mask, edges_dilated)
+        
+        # Apply morphological operations to clean up
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        cleaned = cv2.morphologyEx(color_mask, cv2.MORPH_CLOSE, kernel, iterations=1)
-        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
+        cleaned = cv2.morphologyEx(combined, cv2.MORPH_CLOSE, kernel, iterations=2)
         
         print(f"Preprocessing complete")
         return cleaned
