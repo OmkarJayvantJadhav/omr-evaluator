@@ -9,10 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.6
-        self.bubble_min_area = 50
-        self.bubble_max_area = 1500
-        self.aspect_ratio_threshold = 0.3
+        self.confidence_threshold = 0.5
+        self.bubble_min_area = 100
+        self.bubble_max_area = 5000
+        self.aspect_ratio_threshold = 0.5
+        self.circularity_threshold = 0.2
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -121,15 +122,23 @@ class OMRProcessor:
         # Apply Gaussian blur to reduce noise
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Apply adaptive threshold
-        thresh = cv2.adaptiveThreshold(
+        # Use Otsu's thresholding for better handling of colored bubbles
+        # First try adaptive threshold
+        thresh1 = cv2.adaptiveThreshold(
             blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-            cv2.THRESH_BINARY_INV, 11, 2
+            cv2.THRESH_BINARY_INV, 21, 10
         )
         
-        # Apply morphological operations to clean up the image
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        # Also try Otsu's method for global thresholding
+        _, thresh2 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        
+        # Combine both methods using bitwise OR to catch more bubbles
+        thresh = cv2.bitwise_or(thresh1, thresh2)
+        
+        # Apply morphological operations to clean up and fill holes
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
         
         return cleaned
     
@@ -144,10 +153,15 @@ class OMRProcessor:
         """Filter contours to identify actual bubble marks."""
         bubbles = []
         
+        # Calculate dynamic area thresholds based on image size
+        image_area = image.shape[0] * image.shape[1]
+        dynamic_min_area = max(self.bubble_min_area, image_area * 0.00005)
+        dynamic_max_area = min(self.bubble_max_area, image_area * 0.01)
+        
         for contour in contours:
             # Calculate contour properties
             area = cv2.contourArea(contour)
-            if area < self.bubble_min_area or area > self.bubble_max_area:
+            if area < dynamic_min_area or area > dynamic_max_area:
                 continue
             
             # Check if contour is roughly circular
@@ -156,21 +170,26 @@ class OMRProcessor:
                 continue
             
             circularity = 4 * np.pi * area / (perimeter * perimeter)
-            if circularity < 0.3:  # Not circular enough
+            if circularity < self.circularity_threshold:  # Not circular enough
                 continue
             
             # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
+            if w == 0 or h == 0:
+                continue
+                
             aspect_ratio = float(w) / h
             if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
                 continue
             
             # Calculate fill ratio (how much of the bubble is filled)
             mask = np.zeros(image.shape, dtype=np.uint8)
-            cv2.fillPoly(mask, [contour], 255)
+            cv2.drawContours(mask, [contour], -1, 255, -1)
             filled_pixels = cv2.countNonZero(cv2.bitwise_and(image, mask))
-            total_pixels = area
-            fill_ratio = filled_pixels / total_pixels if total_pixels > 0 else 0
+            
+            # Use bounding box area for more accurate fill ratio
+            roi_area = w * h
+            fill_ratio = filled_pixels / roi_area if roi_area > 0 else 0
             
             bubbles.append({
                 'contour': contour,
@@ -228,13 +247,17 @@ class OMRProcessor:
         if not bubbles:
             return []
         
+        # Calculate dynamic row threshold based on average bubble height
+        avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
+        row_threshold = max(30, avg_height * 0.8)  # pixels
+        
         rows = []
         current_row = [bubbles[0]]
-        row_threshold = 30  # pixels
         
         for bubble in bubbles[1:]:
             # Check if bubble is in the same row as current row
-            current_row_y = current_row[0]['center'][1]
+            # Use average y-coordinate of current row for better grouping
+            current_row_y = np.mean([b['center'][1] for b in current_row])
             bubble_y = bubble['center'][1]
             
             if abs(bubble_y - current_row_y) <= row_threshold:
@@ -324,7 +347,6 @@ class OMRProcessor:
                     row_info["bubbles"].append({
                         "position": j,
                         "fill_ratio": round(bubble['fill_ratio'], 3),
-                        "above_min_threshold": bubble['fill_ratio'] > self.min_fill_threshold,
                         "above_confidence_threshold": bubble['fill_ratio'] > self.confidence_threshold
                     })
                 
