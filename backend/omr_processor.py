@@ -164,47 +164,26 @@ class OMRProcessor:
         """Filter contours to identify actual bubble marks."""
         bubbles = []
         
-        # Calculate dynamic area thresholds based on image size
-        image_area = image.shape[0] * image.shape[1]
-        dynamic_min_area = max(self.bubble_min_area, image_area * 0.00003)
-        dynamic_max_area = min(self.bubble_max_area, image_area * 0.02)
-        
-        print(f"Image area: {image_area}")
-        print(f"Dynamic min area: {dynamic_min_area}")
-        print(f"Dynamic max area: {dynamic_max_area}")
-        print(f"Total contours to filter: {len(contours)}")
-        
-        # Debug counters
-        filtered_by_area = 0
-        filtered_by_circularity = 0
-        filtered_by_aspect_ratio = 0
+        print(f"Total contours found: {len(contours)}")
+        print("ACCEPTING ALL CONTOURS - NO FILTERING")
         
         for contour in contours:
             # Calculate contour properties
             area = cv2.contourArea(contour)
-            if area < dynamic_min_area or area > dynamic_max_area:
-                filtered_by_area += 1
-                continue
             
-            # Check if contour is roughly circular
-            perimeter = cv2.arcLength(contour, True)
-            if perimeter == 0:
-                continue
-            
-            circularity = 4 * np.pi * area / (perimeter * perimeter)
-            if circularity < self.circularity_threshold:  # Not circular enough
-                filtered_by_circularity += 1
+            # Skip only if area is 0
+            if area == 0:
                 continue
             
             # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
             if w == 0 or h == 0:
                 continue
-                
+            
+            # Calculate basic properties
+            perimeter = cv2.arcLength(contour, True)
+            circularity = 4 * np.pi * area / (perimeter * perimeter) if perimeter > 0 else 0
             aspect_ratio = float(w) / h
-            if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
-                filtered_by_aspect_ratio += 1
-                continue
             
             # Calculate fill ratio (how much of the bubble is filled)
             mask = np.zeros(image.shape, dtype=np.uint8)
@@ -221,17 +200,14 @@ class OMRProcessor:
                 'area': area,
                 'fill_ratio': fill_ratio,
                 'bounding_box': (x, y, w, h),
-                'circularity': circularity
+                'circularity': circularity,
+                'aspect_ratio': aspect_ratio
             })
         
         # Sort bubbles by position (top to bottom, left to right)
         bubbles.sort(key=lambda b: (b['center'][1], b['center'][0]))
         
-        # Print debug info
-        print(f"Filtered by area: {filtered_by_area}")
-        print(f"Filtered by circularity: {filtered_by_circularity}")
-        print(f"Filtered by aspect ratio: {filtered_by_aspect_ratio}")
-        print(f"Valid bubbles found: {len(bubbles)}")
+        print(f"Total bubbles accepted: {len(bubbles)}")
         
         return bubbles
     
