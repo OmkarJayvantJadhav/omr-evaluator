@@ -226,31 +226,47 @@ class OMRProcessor:
         # Group bubbles by rows (questions)
         rows = self._group_bubbles_by_rows(bubbles)
         
+        print(f"Total rows detected: {len(rows)}")
+        print(f"Expected questions: {total_questions}")
+        print(f"Choices per question: {number_of_choices}")
+        
         # Generate choices based on number_of_choices (A, B, C, D for 4, A, B, C, D, E for 5, etc.)
         choices = [chr(ord('A') + i) for i in range(number_of_choices)]
         
         question_num = 1
-        for row in rows[:total_questions]:  # Limit to expected number of questions
+        for row_idx, row in enumerate(rows[:total_questions]):  # Limit to expected number of questions
             if not row:
                 continue
             
             # Sort bubbles in row by x-coordinate (left to right)
             row.sort(key=lambda b: b['center'][0])
             
+            print(f"\nQ{question_num} - Row {row_idx}: {len(row)} bubbles")
+            
             # Find the most filled bubble in this row
             max_fill_ratio = 0
             selected_choice = None
+            selected_index = -1
             
             for i, bubble in enumerate(row[:number_of_choices]):  # Limit to configured number of choices
-                if bubble['fill_ratio'] > max_fill_ratio and bubble['fill_ratio'] > self.confidence_threshold:
-                    max_fill_ratio = bubble['fill_ratio']
+                fill_ratio = bubble['fill_ratio']
+                print(f"  Bubble {i} (Choice {choices[i] if i < len(choices) else '?'}): fill_ratio={fill_ratio:.3f}, area={bubble['area']:.0f}")
+                
+                # Lower threshold to 0.2 for detection
+                if fill_ratio > max_fill_ratio and fill_ratio > 0.2:
+                    max_fill_ratio = fill_ratio
                     selected_choice = choices[i] if i < len(choices) else None
+                    selected_index = i
             
             if selected_choice:
                 answers[str(question_num)] = selected_choice
+                print(f"  -> Selected: {selected_choice} (index {selected_index}, fill={max_fill_ratio:.3f})")
+            else:
+                print(f"  -> No answer selected (max fill={max_fill_ratio:.3f})")
             
             question_num += 1
         
+        print(f"\nTotal answers extracted: {len(answers)}")
         return answers
     
     def _group_bubbles_by_rows(self, bubbles: List[Dict]) -> List[List[Dict]]:
@@ -260,7 +276,10 @@ class OMRProcessor:
         
         # Calculate dynamic row threshold based on average bubble height
         avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
-        row_threshold = max(30, avg_height * 0.8)  # pixels
+        row_threshold = max(20, avg_height * 0.6)  # More lenient threshold
+        
+        print(f"Average bubble height: {avg_height:.1f}")
+        print(f"Row threshold: {row_threshold:.1f}")
         
         rows = []
         current_row = [bubbles[0]]
@@ -279,6 +298,10 @@ class OMRProcessor:
         
         if current_row:
             rows.append(current_row)
+        
+        print(f"Grouped into {len(rows)} rows")
+        for i, row in enumerate(rows[:5]):  # Show first 5 rows
+            print(f"  Row {i}: {len(row)} bubbles")
         
         return rows
     
