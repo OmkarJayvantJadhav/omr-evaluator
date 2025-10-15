@@ -12,7 +12,9 @@ import {
   TrashIcon,
   SparklesIcon,
   FireIcon,
-  ClockIcon
+  ClockIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import { teacherAPI, examAPI } from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -24,6 +26,7 @@ const TeacherDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rollNumberFilter, setRollNumberFilter] = useState('');
 
   useEffect(() => {
     fetchDashboardData();
@@ -270,59 +273,142 @@ const TeacherDashboard = () => {
           </CardContent>
         </Card>
 
-      {/* Recent Results */}
+      {/* Student Results - Search by Roll Number */}
       {dashboardData?.recent_results && dashboardData.recent_results.length > 0 && (
           <Card className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                
-                <span>Recent Results</span>
+                <ChartBarIcon className="h-6 w-6 text-primary-500" />
+                <span>Student Results</span>
               </CardTitle>
-              <CardDescription>Latest student submissions and performance</CardDescription>
+              <CardDescription>Search and view student performance by roll number</CardDescription>
             </CardHeader>
             
             <CardContent>
+              {/* Search Filter */}
+              <div className="mb-6">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search by roll number..."
+                    value={rollNumberFilter}
+                    onChange={(e) => setRollNumberFilter(e.target.value)}
+                    className="w-full pl-10 pr-10 py-3 bg-white border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400 transition-all duration-200"
+                  />
+                  {rollNumberFilter && (
+                    <button
+                      onClick={() => setRollNumberFilter('')}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-400 hover:text-neutral-600 transition-colors"
+                    >
+                      <XMarkIcon className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+                {rollNumberFilter && (
+                  <p className="mt-2 text-sm text-neutral-500">
+                    {(() => {
+                      const filtered = dashboardData.recent_results.filter(result => 
+                        result.roll_number?.toString().toLowerCase().includes(rollNumberFilter.toLowerCase())
+                      );
+                      return filtered.length > 0 
+                        ? `Found ${filtered.length} result${filtered.length > 1 ? 's' : ''} for "${rollNumberFilter}"`
+                        : `No results found for "${rollNumberFilter}"`;
+                    })()}
+                  </p>
+                )}
+              </div>
+
+              {/* Results List */}
               <div className="space-y-4">
-                {dashboardData.recent_results.slice(0, 5).map((result, index) => (
+                {(() => {
+                  const filteredResults = rollNumberFilter
+                    ? dashboardData.recent_results.filter(result => 
+                        result.roll_number?.toString().toLowerCase().includes(rollNumberFilter.toLowerCase())
+                      )
+                    : dashboardData.recent_results.slice(0, 10);
+
+                  if (filteredResults.length === 0) {
+                    return (
+                      <div className="text-center py-12">
+                        <UserGroupIcon className="h-12 w-12 text-neutral-300 mx-auto mb-3" />
+                        <p className="text-neutral-500 font-medium">No results found</p>
+                        <p className="text-sm text-neutral-400 mt-1">
+                          {rollNumberFilter ? 'Try a different roll number' : 'No student submissions yet'}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return filteredResults.map((result, index) => (
                     <Card 
                       key={result.id} 
                       variant="plain" 
-                      className="p-4 animate-slide-in-right"
-                      style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+                      className="p-4 hover:shadow-md transition-shadow duration-200"
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="p-2 rounded-lg bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200">
-                            <UserGroupIcon className="h-5 w-5 text-accent-500" />
+                        <div className="flex items-center space-x-4 flex-1">
+                          <div className="p-3 rounded-xl bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200">
+                            <UserGroupIcon className="h-6 w-6 text-accent-600" />
                           </div>
-                          <div>
-                            <p className="font-semibold text-neutral-900">
-                              Roll: {result.roll_number}
-                            </p>
-                            <p className="text-sm text-neutral-500">
-                              {result.score}/{result.exam?.max_marks} marks • {result.percentage.toFixed(1)}%
-                            </p>
-                            <p className="text-xs text-neutral-400">
-                              {new Date(result.created_at).toLocaleDateString()}
-                            </p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-bold text-lg text-neutral-900">
+                                Roll: {result.roll_number}
+                              </p>
+                              <span className={`badge text-xs ${
+                                result.percentage >= 90 ? 'bg-success-100 text-success-700' :
+                                result.percentage >= 75 ? 'bg-primary-100 text-primary-700' :
+                                result.percentage >= 50 ? 'bg-warning-100 text-warning-700' :
+                                'bg-error-100 text-error-700'
+                              }`}>
+                                {result.percentage >= 90 ? '🏆 Excellent' :
+                                 result.percentage >= 75 ? '🚀 Good' :
+                                 result.percentage >= 40 ? '✅ Pass' : '❌ Fail'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm">
+                              <p className="text-neutral-600 font-medium">
+                                Score: <span className="text-primary-600 font-bold">{result.score}/{result.exam?.max_marks}</span>
+                              </p>
+                              <p className="text-neutral-600 font-medium">
+                                Percentage: <span className="text-primary-600 font-bold">{result.percentage.toFixed(1)}%</span>
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                              <p className="flex items-center gap-1">
+                                <BookOpenIcon className="h-3.5 w-3.5" />
+                                {result.exam?.title || 'N/A'}
+                              </p>
+                              <p className="flex items-center gap-1">
+                                <ClockIcon className="h-3.5 w-3.5" />
+                                {new Date(result.created_at).toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <span className={`badge ${
-                            result.percentage >= 90 ? 'bg-success-100 text-success-700' :
-                            result.percentage >= 75 ? 'bg-primary-100 text-primary-700' :
-                            result.percentage >= 50 ? 'bg-warning-100 text-warning-700' :
-                            'bg-error-100 text-error-700'
-                          }`}>
-                            {result.percentage >= 90 ? '🏆 Excellent' :
-                             result.percentage >= 75 ? '🚀 Good' :
-                             result.percentage >= 40 ? '✅ Pass' : '❌ Fail'}
-                          </span>
                         </div>
                       </div>
                     </Card>
-                ))}
+                  ));
+                })()}
               </div>
+
+              {/* Show More Info */}
+              {!rollNumberFilter && dashboardData.recent_results.length > 10 && (
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-neutral-500">
+                    Showing 10 of {dashboardData.recent_results.length} results. Use search to find specific students.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
       )}
