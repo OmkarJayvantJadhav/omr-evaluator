@@ -9,11 +9,11 @@ from pdf2image import convert_from_path
 
 class OMRProcessor:
     def __init__(self):
-        self.confidence_threshold = 0.3
-        self.bubble_min_area = 50
-        self.bubble_max_area = 10000
-        self.aspect_ratio_threshold = 0.7
-        self.circularity_threshold = 0.1
+        self.confidence_threshold = 0.4
+        self.bubble_min_area = 100
+        self.bubble_max_area = 5000
+        self.aspect_ratio_threshold = 0.6
+        self.circularity_threshold = 0.15
         
     def process_omr_sheet(self, file_path: str, total_questions: int, number_of_choices: int = 4) -> Dict:
         """
@@ -116,36 +116,41 @@ class OMRProcessor:
     
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
         """Preprocess the image for better bubble detection."""
-        print(f"Image shape: {image.shape}")
-        
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         # Apply Gaussian blur to reduce noise
-        blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         
-        # Method 1: Detect filled purple/blue bubbles
+        # Method 1: Adaptive threshold
+        thresh1 = cv2.adaptiveThreshold(
+            blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+            cv2.THRESH_BINARY_INV, 21, 10
+        )
+        
+        # Method 2: Otsu's method for global thresholding
+        _, thresh2 = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        
+        # Method 3: Simple threshold for dark bubbles (works well for colored bubbles)
+        _, thresh3 = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY_INV)
+        
+        # Method 4: Color-based detection for purple/blue bubbles
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_purple = np.array([110, 80, 80])
-        upper_purple = np.array([150, 255, 255])
-        filled_mask = cv2.inRange(hsv, lower_purple, upper_purple)
+        # Purple/Blue color range
+        lower_purple = np.array([100, 50, 50])
+        upper_purple = np.array([160, 255, 255])
+        color_mask = cv2.inRange(hsv, lower_purple, upper_purple)
         
-        # Method 2: Detect outlined bubbles using edge detection
-        # Use Canny to find edges
-        edges = cv2.Canny(blurred, 50, 150)
+        # Combine all methods using bitwise OR to catch more bubbles
+        thresh = cv2.bitwise_or(thresh1, thresh2)
+        thresh = cv2.bitwise_or(thresh, thresh3)
+        thresh = cv2.bitwise_or(thresh, color_mask)
         
-        # Dilate edges to make them thicker
-        kernel_edge = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
-        edges_dilated = cv2.dilate(edges, kernel_edge, iterations=1)
+        # Apply morphological operations to clean up and fill holes
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+        cleaned = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+        cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel, iterations=1)
         
-        # Combine filled bubbles and outlined bubbles
-        combined = cv2.bitwise_or(filled_mask, edges_dilated)
-        
-        # Apply morphological operations to clean up
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        cleaned = cv2.morphologyEx(combined, cv2.MORPH_CLOSE, kernel, iterations=2)
-        
-        print(f"Preprocessing complete")
         return cleaned
     
     def _detect_bubbles(self, processed_image: np.ndarray) -> List:
@@ -159,35 +164,34 @@ class OMRProcessor:
         """Filter contours to identify actual bubble marks."""
         bubbles = []
         
-        print(f"Total contours found: {len(contours)}")
-        
-        # Calculate reasonable area range based on image size
+        # Calculate dynamic area thresholds based on image size
         image_area = image.shape[0] * image.shape[1]
-        min_area = 100  # Minimum bubble size
-        max_area = 1000  # Fixed max to avoid huge merged bubbles
-        
-        print(f"Area filter: {min_area} to {max_area}")
-        
-        filtered_count = 0
+        dynamic_min_area = max(self.bubble_min_area, image_area * 0.00005)
+        dynamic_max_area = min(self.bubble_max_area, image_area * 0.01)
         
         for contour in contours:
             # Calculate contour properties
             area = cv2.contourArea(contour)
+            if area < dynamic_min_area or area > dynamic_max_area:
+                continue
             
-            # Filter by area to remove noise and huge blobs
-            if area < min_area or area > max_area:
-                filtered_count += 1
+            # Check if contour is roughly circular
+            perimeter = cv2.arcLength(contour, True)
+            if perimeter == 0:
+                continue
+            
+            circularity = 4 * np.pi * area / (perimeter * perimeter)
+            if circularity < self.circularity_threshold:  # Not circular enough
                 continue
             
             # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
             if w == 0 or h == 0:
                 continue
-            
-            # Calculate basic properties
-            perimeter = cv2.arcLength(contour, True)
-            circularity = 4 * np.pi * area / (perimeter * perimeter) if perimeter > 0 else 0
+                
             aspect_ratio = float(w) / h
+            if abs(aspect_ratio - 1.0) > self.aspect_ratio_threshold:
+                continue
             
             # Calculate fill ratio (how much of the bubble is filled)
             mask = np.zeros(image.shape, dtype=np.uint8)
@@ -204,15 +208,11 @@ class OMRProcessor:
                 'area': area,
                 'fill_ratio': fill_ratio,
                 'bounding_box': (x, y, w, h),
-                'circularity': circularity,
-                'aspect_ratio': aspect_ratio
+                'circularity': circularity
             })
         
         # Sort bubbles by position (top to bottom, left to right)
         bubbles.sort(key=lambda b: (b['center'][1], b['center'][0]))
-        
-        print(f"Filtered out: {filtered_count}")
-        print(f"Total bubbles accepted: {len(bubbles)}")
         
         return bubbles
     
@@ -226,47 +226,31 @@ class OMRProcessor:
         # Group bubbles by rows (questions)
         rows = self._group_bubbles_by_rows(bubbles)
         
-        print(f"Total rows detected: {len(rows)}")
-        print(f"Expected questions: {total_questions}")
-        print(f"Choices per question: {number_of_choices}")
-        
         # Generate choices based on number_of_choices (A, B, C, D for 4, A, B, C, D, E for 5, etc.)
         choices = [chr(ord('A') + i) for i in range(number_of_choices)]
         
         question_num = 1
-        for row_idx, row in enumerate(rows[:total_questions]):  # Limit to expected number of questions
+        for row in rows[:total_questions]:  # Limit to expected number of questions
             if not row:
                 continue
             
             # Sort bubbles in row by x-coordinate (left to right)
             row.sort(key=lambda b: b['center'][0])
             
-            print(f"\nQ{question_num} - Row {row_idx}: {len(row)} bubbles")
-            
             # Find the most filled bubble in this row
             max_fill_ratio = 0
             selected_choice = None
-            selected_index = -1
             
             for i, bubble in enumerate(row[:number_of_choices]):  # Limit to configured number of choices
-                fill_ratio = bubble['fill_ratio']
-                print(f"  Bubble {i} (Choice {choices[i] if i < len(choices) else '?'}): fill_ratio={fill_ratio:.3f}, area={bubble['area']:.0f}")
-                
-                # Lower threshold to 0.2 for detection
-                if fill_ratio > max_fill_ratio and fill_ratio > 0.2:
-                    max_fill_ratio = fill_ratio
+                if bubble['fill_ratio'] > max_fill_ratio and bubble['fill_ratio'] > self.confidence_threshold:
+                    max_fill_ratio = bubble['fill_ratio']
                     selected_choice = choices[i] if i < len(choices) else None
-                    selected_index = i
             
             if selected_choice:
                 answers[str(question_num)] = selected_choice
-                print(f"  -> Selected: {selected_choice} (index {selected_index}, fill={max_fill_ratio:.3f})")
-            else:
-                print(f"  -> No answer selected (max fill={max_fill_ratio:.3f})")
             
             question_num += 1
         
-        print(f"\nTotal answers extracted: {len(answers)}")
         return answers
     
     def _group_bubbles_by_rows(self, bubbles: List[Dict]) -> List[List[Dict]]:
@@ -275,17 +259,8 @@ class OMRProcessor:
             return []
         
         # Calculate dynamic row threshold based on average bubble height
-        # Filter out huge bubbles for better average
-        normal_bubbles = [b for b in bubbles if b['bounding_box'][3] < 50]
-        if normal_bubbles:
-            avg_height = np.mean([b['bounding_box'][3] for b in normal_bubbles])
-        else:
-            avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
-        
-        row_threshold = max(15, avg_height * 0.4)  # Stricter threshold
-        
-        print(f"Average bubble height: {avg_height:.1f}")
-        print(f"Row threshold: {row_threshold:.1f}")
+        avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
+        row_threshold = max(30, avg_height * 0.8)  # pixels
         
         rows = []
         current_row = [bubbles[0]]
@@ -304,10 +279,6 @@ class OMRProcessor:
         
         if current_row:
             rows.append(current_row)
-        
-        print(f"Grouped into {len(rows)} rows")
-        for i, row in enumerate(rows[:5]):  # Show first 5 rows
-            print(f"  Row {i}: {len(row)} bubbles")
         
         return rows
     
