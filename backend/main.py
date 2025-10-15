@@ -507,10 +507,26 @@ async def upload_omr_sheet(
             "is_resubmission": replacing_submission
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions (like validation errors)
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except:
+                pass
+        raise
     except Exception as e:
         # Clean up file if processing fails
         if os.path.exists(file_path):
-            os.remove(file_path)
+            try:
+                os.remove(file_path)
+            except:
+                pass
+        
+        # Log the full error for debugging
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"OMR Upload Error: {error_details}")
         
         raise HTTPException(
             status_code=500,
