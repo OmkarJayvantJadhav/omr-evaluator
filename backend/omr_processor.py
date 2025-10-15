@@ -163,10 +163,10 @@ class OMRProcessor:
         
         # Calculate reasonable area range based on image size
         image_area = image.shape[0] * image.shape[1]
-        min_area = 30  # Minimum bubble size
-        max_area = image_area * 0.05  # Max 5% of image
+        min_area = 100  # Minimum bubble size
+        max_area = 1000  # Fixed max to avoid huge merged bubbles
         
-        print(f"Area filter: {min_area} to {max_area:.0f}")
+        print(f"Area filter: {min_area} to {max_area}")
         
         filtered_count = 0
         
@@ -275,8 +275,14 @@ class OMRProcessor:
             return []
         
         # Calculate dynamic row threshold based on average bubble height
-        avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
-        row_threshold = max(20, avg_height * 0.6)  # More lenient threshold
+        # Filter out huge bubbles for better average
+        normal_bubbles = [b for b in bubbles if b['bounding_box'][3] < 50]
+        if normal_bubbles:
+            avg_height = np.mean([b['bounding_box'][3] for b in normal_bubbles])
+        else:
+            avg_height = np.mean([b['bounding_box'][3] for b in bubbles])
+        
+        row_threshold = max(15, avg_height * 0.4)  # Stricter threshold
         
         print(f"Average bubble height: {avg_height:.1f}")
         print(f"Row threshold: {row_threshold:.1f}")
